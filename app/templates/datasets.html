@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}My Datasets - AI BI Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        padding: 30px 0 20px;
+    }
+    .page-title {
+        font-weight: 700;
+    }
+    .dataset-card {
+        border: none;
+        border-radius: 18px;
+        background: white;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+        transition: 0.2s ease;
+    }
+    .dataset-card:hover {
+        transform: translateY(-4px);
+    }
+    .dataset-icon {
+        font-size: 40px;
+        margin-bottom: 15px;
+    }
+    .dataset-name {
+        font-weight: 700;
+        word-break: break-word;
+    }
+    .dataset-info {
+        font-size: 14px;
+    }
+    .empty-icon {
+        font-size: 60px;
+    }
+    .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+
+    <!-- PAGE HEADER -->
+    <section class="page-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1 class="page-title mb-1">
+                    📊 My Datasets
+                </h1>
+                <p class="text-muted mb-0">
+                    View, profile, preview, inspect quality, analyze BI metrics, and ask AI questions about your datasets.
+                </p>
+            </div>
+            <div>
+                <a href="{{ url_for('data.upload') }}" class="btn btn-primary px-4 shadow-sm">
+                    📂 Upload Dataset
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- DATASETS LIST -->
+    {% if datasets %}
+
+        <div class="row g-4 mt-1 mb-5">
+            {% for dataset in datasets %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card dataset-card h-100">
+                        <div class="card-body p-4 d-flex flex-column">
+
+                            <!-- Icon -->
+                            <div class="dataset-icon">
+                                📊
+                            </div>
+
+                            <!-- Dataset Name -->
+                            <h4 class="dataset-name mb-3">
+                                {{ dataset.name }}
+                            </h4>
+
+                            <!-- Dataset Details -->
+                            <div class="dataset-info text-muted mb-4 flex-grow-1">
+                                <div class="mb-1">
+                                    <strong>File Type:</strong> <span class="badge bg-secondary">{{ dataset.source_type|upper }}</span>
+                                </div>
+                                <div class="mb-1">
+                                    <strong>Size:</strong> {{ dataset.file_size_human }}
+                                </div>
+                                <div class="mb-1">
+                                    <strong>Rows:</strong> {{ "{:,}".format(dataset.rows) if dataset.rows is not none else 'N/A' }}
+                                </div>
+                                <div class="mb-1">
+                                    <strong>Columns:</strong> {{ dataset.columns if dataset.columns is not none else 'N/A' }}
+                                </div>
+                                <div>
+                                    <strong>Uploaded:</strong> {{ dataset.uploaded_at.strftime("%d %b %Y, %I:%M %p") }}
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="action-buttons pt-2 border-top">
+                                <a
+                                    href="{{ url_for('ai.assistant', dataset_id=dataset.id) }}"
+                                    class="btn btn-primary btn-sm px-3 fw-bold"
+                                    title="Ask AI Assistant"
+                                >
+                                    🤖 Ask AI
+                                </a>
+
+                                <a
+                                    href="{{ url_for('analytics.dashboard', dataset_id=dataset.id) }}"
+                                    class="btn btn-success btn-sm px-3"
+                                    title="BI Analytics"
+                                >
+                                    📈 Analytics
+                                </a>
+
+                                <a
+                                    href="{{ url_for('data.quality_analysis', dataset_id=dataset.id) }}"
+                                    class="btn btn-warning btn-sm px-3 text-dark fw-medium"
+                                    title="Check Data Quality"
+                                >
+                                    🛡️ Quality
+                                </a>
+
+                                <a
+                                    href="{{ url_for('data.view_dataset', dataset_id=dataset.id) }}"
+                                    class="btn btn-outline-primary btn-sm px-3"
+                                    title="View Profile"
+                                >
+                                    📊 Profile
+                                </a>
+
+                                <a
+                                    href="{{ url_for('data.preview_dataset', dataset_id=dataset.id) }}"
+                                    class="btn btn-outline-primary btn-sm px-3"
+                                    title="Preview Data"
+                                >
+                                    🔍 Preview
+                                </a>
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('data.delete_dataset', dataset_id=dataset.id) }}"
+                                    class="d-inline"
+                                    onsubmit="return confirm('Are you sure you want to delete this dataset?');"
+                                >
+                                    <button
+                                        type="submit"
+                                        class="btn btn-outline-danger btn-sm px-3"
+                                        title="Delete Dataset"
+                                    >
+                                        🗑️ Delete
+                                    </button>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    {% else %}
+
+        <!-- EMPTY STATE -->
+        <div class="card dataset-card mt-3 mb-5">
+            <div class="card-body text-center py-5">
+                <div class="empty-icon mb-3">
+                    📂
+                </div>
+                <h3 class="fw-bold">
+                    No Datasets Yet
+                </h3>
+                <p class="text-muted mb-4" style="max-width: 450px; margin: 0 auto;">
+                    Upload your first CSV or Excel dataset to start profiling, checking quality, analyzing metrics, and asking AI questions.
+                </p>
+                <a href="{{ url_for('data.upload') }}" class="btn btn-primary px-4 py-2 shadow-sm">
+                    📂 Upload Your First Dataset
+                </a>
+            </div>
+        </div>
+
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+body {
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+.hero {
+    padding: 60px 20px;
+}
+
+.feature-card {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    height: 100%;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+.feature-card h4 {
+    margin-bottom: 15px;
+}

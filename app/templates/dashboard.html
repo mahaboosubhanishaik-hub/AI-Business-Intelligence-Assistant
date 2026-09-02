@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - AI BI Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .welcome-section {
+        padding: 30px 0 20px;
+    }
+    .welcome-title {
+        font-weight: 700;
+    }
+    .feature-card {
+        border: none;
+        border-radius: 18px;
+        background: white;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+        height: 100%;
+        transition: 0.2s ease;
+    }
+    .feature-card:hover {
+        transform: translateY(-4px);
+    }
+    .feature-icon {
+        font-size: 36px;
+        margin-bottom: 15px;
+    }
+    .action-card {
+        border: none;
+        border-radius: 18px;
+        background: white;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+    }
+    .progress {
+        height: 8px;
+        border-radius: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+
+    <!-- WELCOME SECTION -->
+    <section class="welcome-section">
+        <div class="d-flex align-items-center gap-3">
+            <img
+                src="{{ url_for('static', filename='images/AIBIlogo.png') }}"
+                alt="AI BI Logo"
+                style="height: 55px; width: auto; object-fit: contain;"
+            >
+            <div>
+                <h1 class="welcome-title mb-1">
+                    Business Intelligence Dashboard
+                </h1>
+                <p class="text-muted mb-0">
+                    Welcome back, {{ current_user.name }}. Analyze your business data with AI.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- QUICK ACTIONS -->
+    <div class="row g-4 mb-5">
+
+        <!-- Upload Dataset -->
+        <div class="col-md-6">
+            <div class="card action-card">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h4 class="fw-bold mb-1">
+                                📂 Upload Dataset
+                            </h4>
+                            <p class="text-muted mb-0">
+                                Upload CSV or Excel files for analysis.
+                            </p>
+                        </div>
+                        <div class="col-auto">
+                            <a
+                                href="{{ url_for('data.upload') }}"
+                                class="btn btn-primary px-4"
+                            >
+                                Upload
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Datasets -->
+        <div class="col-md-6">
+            <div class="card action-card">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h4 class="fw-bold mb-1">
+                                📊 My Datasets
+                            </h4>
+                            <p class="text-muted mb-0">
+                                View and manage your uploaded datasets.
+                            </p>
+                        </div>
+                        <div class="col-auto">
+                            <a
+                                href="{{ url_for('data.datasets') }}"
+                                class="btn btn-outline-primary px-4"
+                            >
+                                View Datasets
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FEATURES -->
+    <div class="row g-4 mb-5">
+
+        <!-- Data Analysis -->
+        <div class="col-md-4">
+            <div class="card feature-card">
+                <div class="card-body p-4">
+                    <div class="feature-icon">
+                        📊
+                    </div>
+                    <h4 class="fw-bold">
+                        Data Profiling & Quality
+                    </h4>
+                    <p class="text-muted">
+                        Automatically evaluate dataset completeness, uniqueness, validity, and outliers.
+                    </p>
+                    <a
+                        href="{{ url_for('data.datasets') }}"
+                        class="btn btn-outline-primary mt-2"
+                    >
+                        Inspect Datasets
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Assistant -->
+        <div class="col-md-4">
+            <div class="card feature-card">
+                <div class="card-body p-4">
+                    <div class="feature-icon">
+                        🤖
+                    </div>
+                    <h4 class="fw-bold">
+                        AI Intelligence
+                    </h4>
+                    <p class="text-muted">
+                        Ask natural-language questions about your revenue, top products, regions, and metrics.
+                    </p>
+                    <a
+                        href="{{ url_for('data.datasets') }}"
+                        class="btn btn-primary mt-2 fw-bold"
+                    >
+                        Ask AI Assistant
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- BI Analytics & Monitoring -->
+        <div class="col-md-4">
+            <div class="card feature-card">
+                <div class="card-body p-4">
+                    <div class="feature-icon">
+                        📈
+                    </div>
+                    <h4 class="fw-bold">
+                        BI Analytics & Monitoring
+                    </h4>
+                    <p class="text-muted">
+                        Financial KPIs, Chart.js visualizations, quality tracking, and degradation alerts.
+                    </p>
+                    <a
+                        href="{{ url_for('data.datasets') }}"
+                        class="btn btn-outline-primary mt-2"
+                    >
+                        View BI Analytics
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

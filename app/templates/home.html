@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - AI Business Intelligence Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .welcome-hero {
+        padding: 40px 0 30px;
+    }
+    .hero-logo {
+        height: 110px;
+        width: auto;
+        object-fit: contain;
+        transition: transform 0.3s ease;
+    }
+    .hero-logo:hover {
+        transform: scale(1.05);
+    }
+    .feature-card {
+        border: none;
+        border-radius: 18px;
+        background: white;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.09);
+    }
+    .feature-icon-wrapper {
+        width: 60px;
+        height: 60px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- HERO SECTION -->
+    <div class="welcome-hero text-center">
+
+        <!-- LOGO IMAGE -->
+        <div class="text-center mb-3">
+            <img
+                src="{{ url_for('static', filename='images/AIBIlogo.png') }}"
+                alt="AI BI Assistant Logo"
+                class="hero-logo shadow-sm p-2 bg-white rounded-circle"
+            >
+        </div>
+
+        <div class="badge bg-primary-subtle text-primary mb-3 px-3 py-2 fs-6 rounded-pill fw-semibold border border-primary-subtle">
+            ⚡ Intelligent Enterprise Data Platform
+        </div>
+
+        <h1 class="display-4 fw-bold text-dark mb-3">
+            AI Business Intelligence Assistant
+        </h1>
+
+        <p class="lead text-muted mx-auto mb-4" style="max-width: 750px; font-size: 1.2rem;">
+            Empower your organization with automated dataset profiling, intelligent Data Quality Monitoring (DQM), business analytics, and AI-driven recommendations.
+        </p>
+
+        <!-- CTA BUTTONS -->
+        {% if current_user.is_authenticated %}
+
+            <div class="d-flex justify-content-center gap-3 mt-4">
+                <a
+                    href="{{ url_for('main.dashboard') }}"
+                    class="btn btn-primary btn-lg shadow px-4 py-3 fw-bold rounded-3"
+                >
+                    🚀 Enter Main Dashboard
+                </a>
+                <a
+                    href="{{ url_for('data.datasets') }}"
+                    class="btn btn-outline-primary btn-lg px-4 py-3 fw-bold rounded-3"
+                >
+                    📊 View My Datasets
+                </a>
+            </div>
+
+        {% else %}
+
+            <div class="d-flex justify-content-center flex-wrap gap-3 mt-4">
+                <a
+                    href="{{ url_for('auth.login') }}"
+                    class="btn btn-outline-primary btn-lg px-4 py-3 fw-bold rounded-3 shadow-sm"
+                >
+                    🔑 Login to Account
+                </a>
+                <a
+                    href="{{ url_for('auth.register') }}"
+                    class="btn btn-primary btn-lg px-4 py-3 fw-bold rounded-3 shadow"
+                >
+                    ✨ Create Free Account
+                </a>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+    <!-- QUICK AUTH & GETTING STARTED CARDS (FOR GUESTS) -->
+    {% if not current_user.is_authenticated %}
+    <div class="row g-4 my-5 justify-content-center">
+        <!-- REGISTER CARD -->
+        <div class="col-md-6 col-lg-5">
+            <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center bg-white">
+                <div class="card-body">
+                    <img src="{{ url_for('static', filename='images/AIBIlogo.png') }}" alt="Logo" style="height: 50px; width: auto;" class="mb-3">
+                    <h3 class="fw-bold mb-2">New User?</h3>
+                    <p class="text-muted mb-4">
+                        Register your account in seconds to start uploading datasets, profiling data quality, and analyzing metrics.
+                    </p>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm">
+                        Register Account
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- LOGIN CARD -->
+        <div class="col-md-6 col-lg-5">
+            <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center bg-white">
+                <div class="card-body">
+                    <img src="{{ url_for('static', filename='images/AIBIlogo.png') }}" alt="Logo" style="height: 50px; width: auto;" class="mb-3">
+                    <h3 class="fw-bold mb-2">Returning User?</h3>
+                    <p class="text-muted mb-4">
+                        Sign in to access your business intelligence dashboard, uploaded datasets, and data quality reports.
+                    </p>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg w-100 fw-bold">
+                        Login Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- PROJECT BUILDUP & CORE CAPABILITIES -->
+    <div class="my-5 pt-3">
+
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Comprehensive BI System Build-Up</h2>
+            <p class="text-muted">Built from the ground up for seamless data management and automated quality assurance.</p>
+        </div>
+
+        <div class="row g-4">
+
+            <!-- 1. Dataset Management -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card h-100 p-4">
+                    <div class="card-body">
+                        <div class="feature-icon-wrapper bg-primary-subtle text-primary">
+                            📂
+                        </div>
+                        <h4 class="fw-bold mb-2">1. Dataset Management</h4>
+                        <p class="text-muted mb-0">
+                            Upload CSV and Excel files securely. Tracks file sizes, row/column metrics, upload timestamps, and enforces strict user ownership security.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Intelligent Profiling -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card h-100 p-4">
+                    <div class="card-body">
+                        <div class="feature-icon-wrapper bg-info-subtle text-info">
+                            📊
+                        </div>
+                        <h4 class="fw-bold mb-2">2. Data Profiling</h4>
+                        <p class="text-muted mb-0">
+                            Automatic memory usage estimation, smart data type classification (integer, float, string, datetime), missing value ratios, and unique value analysis.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. DQM Engine -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card h-100 p-4">
+                    <div class="card-body">
+                        <div class="feature-icon-wrapper bg-warning-subtle text-warning">
+                            🛡️
+                        </div>
+                        <h4 class="fw-bold mb-2">3. Data Quality (DQM)</h4>
+                        <p class="text-muted mb-0">
+                            Evaluates dataset health across 4 dimensions: Completeness, Uniqueness, Validity, and IQR statistical Outlier detection with structured severity audits.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. BI Analytics -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card h-100 p-4">
+                    <div class="card-body">
+                        <div class="feature-icon-wrapper bg-success-subtle text-success">
+                            📈
+                        </div>
+                        <h4 class="fw-bold mb-2">4. Business Analytics</h4>
+                        <p class="text-muted mb-0">
+                            Interactive financial KPIs, profit margins, total quantities, and dynamic Chart.js visualizations by product line and geographic region.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. AI Assistant -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card h-100 p-4">
+                    <div class="card-body">
+                        <div class="feature-icon-wrapper bg-danger-subtle text-danger">
+                            🤖
+                        </div>
+                        <h4 class="fw-bold mb-2">5. AI Intelligence</h4>
+                        <p class="text-muted mb-0">
+                            Natural language dataset querying and automated AI recommendations for decision-makers powered by Google Gemini.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Enterprise Security -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card h-100 p-4">
+                    <div class="card-body">
+                        <div class="feature-icon-wrapper bg-secondary-subtle text-secondary">
+                            🔒
+                        </div>
+                        <h4 class="fw-bold mb-2">6. Security & Storage</h4>
+                        <p class="text-muted mb-0">
+                            Werkzeug password hashing, PostgreSQL/Neon database integration, sanitized filenames, and protected endpoints.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

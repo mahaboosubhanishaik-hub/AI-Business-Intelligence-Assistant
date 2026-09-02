@@ -1,0 +1,374 @@
+{% extends "base.html" %}
+
+{% block title %}AI Business Intelligence Assistant - {{ dataset.name }} - AI BI Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        padding: 30px 0 20px;
+    }
+    .header-logo {
+        height: 50px;
+        width: auto;
+        object-fit: contain;
+    }
+    .layer-card {
+        border: none;
+        border-radius: 18px;
+        background: white;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+    }
+    .chat-container {
+        border: none;
+        border-radius: 20px;
+        background: white;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+    }
+    .chat-box {
+        max-height: 450px;
+        overflow-y: auto;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 16px;
+    }
+    .chat-message {
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: column;
+    }
+    .chat-message.user {
+        align-items: flex-end;
+    }
+    .chat-message.assistant {
+        align-items: flex-start;
+    }
+    .message-bubble {
+        max-width: 80%;
+        padding: 14px 18px;
+        border-radius: 18px;
+        font-size: 15px;
+        line-height: 1.5;
+    }
+    .chat-message.user .message-bubble {
+        background: #0d6efd;
+        color: white;
+        border-bottom-right-radius: 4px;
+    }
+    .chat-message.assistant .message-bubble {
+        background: white;
+        color: #212529;
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e9ecef;
+    }
+    .question-chip {
+        border-radius: 20px;
+        font-size: 13px;
+        padding: 8px 16px;
+        background: #e7f1ff;
+        color: #0d6efd;
+        border: 1px solid #b6d4fe;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .question-chip:hover {
+        background: #0d6efd;
+        color: white;
+    }
+    .assistant-avatar {
+        height: 28px;
+        width: auto;
+        object-fit: contain;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+
+    <!-- PAGE HEADER -->
+    <section class="page-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <img
+                    src="{{ url_for('static', filename='images/AIBIlogo.png') }}"
+                    alt="AI BI Logo"
+                    class="header-logo"
+                >
+                <div>
+                    <h1 class="fw-bold mb-1">
+                        AI BI Assistant: {{ dataset.name }}
+                    </h1>
+                    <p class="text-muted mb-0">
+                        Interactive natural language analytics, executive summaries, and data quality explanations.
+                    </p>
+                </div>
+            </div>
+            <div>
+                <a href="{{ url_for('analytics.dashboard', dataset_id=dataset.id) }}" class="btn btn-success me-2">
+                    📈 BI Analytics
+                </a>
+                <a href="{{ url_for('data.quality_analysis', dataset_id=dataset.id) }}" class="btn btn-warning me-2 text-dark fw-medium">
+                    🛡️ Data Quality
+                </a>
+                <a href="{{ url_for('data.view_dataset', dataset_id=dataset.id) }}" class="btn btn-outline-primary me-2">
+                    📊 Dataset Profile
+                </a>
+                <a href="{{ url_for('data.datasets') }}" class="btn btn-outline-secondary">
+                    ← Back to Datasets
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3 MAJOR PIPELINE LAYERS OVERVIEW -->
+    <div class="row g-4 mb-4">
+        <!-- LAYER 1: DATA QUALITY -->
+        <div class="col-md-4">
+            <div class="card layer-card h-100 p-3">
+                <div class="card-body">
+                    <small class="text-muted text-uppercase fw-bold d-block mb-1">Layer 1: Data Quality</small>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="fs-3 fw-bold text-dark">{{ quality_report.score }}%</span>
+                        <span class="badge {{ quality_report.status_info.badge_class }} px-3 py-1">
+                            {{ quality_report.status }}
+                        </span>
+                    </div>
+                    <small class="text-muted d-block">
+                        Missing: {{ quality_report.summary.missing_values }} | Duplicates: {{ quality_report.summary.duplicate_rows }} | Outliers: {{ quality_report.summary.outliers_count }}
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- LAYER 2: BUSINESS PERFORMANCE -->
+        <div class="col-md-4">
+            <div class="card layer-card h-100 p-3">
+                <div class="card-body">
+                    <small class="text-muted text-uppercase fw-bold d-block mb-1">Layer 2: Business Performance</small>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="fs-4 fw-bold text-primary">
+                            {% if analytics.kpis.get("total_revenue") %}
+                                {{ "{:,.2f}".format(analytics.kpis.total_revenue) }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </span>
+                        <small class="text-muted">Total Revenue</small>
+                    </div>
+                    <small class="text-muted d-block">
+                        Top Product: <strong>{{ analytics.highlights.get("top_product", "N/A") }}</strong> | Region: <strong>{{ analytics.highlights.get("best_region", "N/A") }}</strong>
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- LAYER 3: AI INTERPRETATION -->
+        <div class="col-md-4">
+            <div class="card layer-card h-100 p-3 bg-primary-subtle border border-primary-subtle">
+                <div class="card-body">
+                    <small class="text-primary text-uppercase fw-bold d-block mb-1">Layer 3: AI Interpretation</small>
+                    <div class="fw-bold text-dark fs-5 mb-1 d-flex align-items-center gap-2">
+                        <span>Active Assistant</span>
+                        <img src="{{ url_for('static', filename='images/AIBIlogo.png') }}" alt="Logo" style="height: 22px; width: auto;">
+                    </div>
+                    <small class="text-muted d-block">
+                        Ground Truth Model • Zero Hallucinations • Context Informed
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI EXECUTIVE SUMMARY & RECOMMENDATIONS -->
+    <div class="card layer-card mb-5">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="fw-bold mb-0 d-flex align-items-center gap-2">
+                    <img src="{{ url_for('static', filename='images/AIBIlogo.png') }}" alt="Logo" style="height: 28px; width: auto;">
+                    <span>AI Executive Business Summary</span>
+                </h4>
+                {% if ai_summary.is_ai_generated %}
+                    <span class="badge bg-primary px-3 py-1">Gemini AI Generated</span>
+                {% else %}
+                    <span class="badge bg-secondary px-3 py-1">Structured Fallback Mode</span>
+                {% endif %}
+            </div>
+
+            <p class="lead text-dark fs-6 mb-4">
+                {{ ai_summary.summary }}
+            </p>
+
+            <h5 class="fw-bold text-dark mb-3">🎯 Actionable Executive Recommendations</h5>
+            <ul class="list-group list-group-flush mb-0">
+                {% for rec in ai_summary.recommendations %}
+                <li class="list-group-item bg-transparent ps-0 py-2 border-0">
+                    🔹 {{ rec }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- INTERACTIVE AI CHAT INTERFACE -->
+    <div class="card chat-container mb-5">
+        <div class="card-body p-4">
+
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <img src="{{ url_for('static', filename='images/AIBIlogo.png') }}" alt="Logo" style="height: 30px; width: auto;">
+                <h4 class="fw-bold mb-0">Ask Questions About This Dataset</h4>
+            </div>
+
+            <!-- SUGGESTED QUESTION CHIPS -->
+            <div class="mb-4">
+                <small class="text-muted d-block mb-2 fw-semibold">Suggested Questions:</small>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="question-chip" onclick="askSuggested('What is my total revenue and profit?')">
+                        What is my total revenue and profit?
+                    </button>
+                    <button class="question-chip" onclick="askSuggested('Which product performed best?')">
+                        Which product performed best?
+                    </button>
+                    <button class="question-chip" onclick="askSuggested('Which region generated the highest revenue?')">
+                        Which region generated highest revenue?
+                    </button>
+                    <button class="question-chip" onclick="askSuggested('Why is my data quality score what it is?')">
+                        Why is my quality score low/high?
+                    </button>
+                    <button class="question-chip" onclick="askSuggested('Summarize the business performance.')">
+                        Summarize business performance.
+                    </button>
+                    <button class="question-chip" onclick="askSuggested('What recommendations do you have for this dataset?')">
+                        What should I investigate?
+                    </button>
+                </div>
+            </div>
+
+            <!-- CHAT MESSAGES THREAD -->
+            <div class="chat-box mb-4" id="chatBox">
+                <div class="chat-message assistant">
+                    <small class="text-muted fw-bold ms-1 mb-1 d-flex align-items-center gap-1">
+                        <img src="{{ url_for('static', filename='images/AIBIlogo.png') }}" alt="Logo" class="assistant-avatar">
+                        <span>AI Assistant</span>
+                    </small>
+                    <div class="message-bubble">
+                        Hello! I am your AI Business Intelligence Assistant for <strong>{{ dataset.name }}</strong>. Ask me anything about your revenue, top products, regions, profit margins, or data quality issues!
+                    </div>
+                </div>
+            </div>
+
+            <!-- INPUT FORM -->
+            <form id="chatForm" onsubmit="handleChatSubmit(event)" class="d-flex gap-2">
+                <input
+                    type="text"
+                    id="questionInput"
+                    class="form-control form-control-lg rounded-3"
+                    placeholder="Ask a question about your business dataset..."
+                    required
+                >
+                <button type="submit" id="sendBtn" class="btn btn-primary btn-lg px-4 rounded-3 shadow-sm">
+                    Ask AI 🚀
+                </button>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- BOTTOM ACTIONS -->
+    <div class="mb-5">
+        <a href="{{ url_for('data.datasets') }}" class="btn btn-secondary me-2">
+            ← Back to Datasets
+        </a>
+        <a href="{{ url_for('analytics.dashboard', dataset_id=dataset.id) }}" class="btn btn-success me-2">
+            📈 View BI Analytics
+        </a>
+        <a href="{{ url_for('data.quality_analysis', dataset_id=dataset.id) }}" class="btn btn-warning me-2 text-dark fw-medium">
+            🛡️ View Data Quality
+        </a>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const datasetId = {{ dataset.id }};
+    const chatBox = document.getElementById("chatBox");
+    const questionInput = document.getElementById("questionInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const logoUrl = "{{ url_for('static', filename='images/AIBIlogo.png') }}";
+
+    function appendMessage(sender, text) {
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `chat-message ${sender}`;
+        
+        const label = document.createElement("small");
+        label.className = "text-muted fw-bold ms-1 mb-1 d-flex align-items-center gap-1";
+        
+        if (sender === "assistant") {
+            const img = document.createElement("img");
+            img.src = logoUrl;
+            img.className = "assistant-avatar";
+            label.appendChild(img);
+            const span = document.createElement("span");
+            span.textContent = "AI Assistant";
+            label.appendChild(span);
+        } else {
+            label.textContent = "You";
+        }
+
+        const bubble = document.createElement("div");
+        bubble.className = "message-bubble";
+        bubble.innerText = text;
+
+        messageDiv.appendChild(label);
+        messageDiv.appendChild(bubble);
+        chatBox.appendChild(messageDiv);
+
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function askSuggested(questionText) {
+        questionInput.value = questionText;
+        submitQuestion(questionText);
+    }
+
+    function handleChatSubmit(e) {
+        e.preventDefault();
+        const question = questionInput.value.trim();
+        if (!question) return;
+        submitQuestion(question);
+    }
+
+    function submitQuestion(questionText) {
+        appendMessage("user", questionText);
+        questionInput.value = "";
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Thinking...';
+
+        fetch(`/ai/assistant/${datasetId}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ question: questionText })
+        })
+        .then(response => response.json())
+        .then(data => {
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = 'Ask AI 🚀';
+            if (data && data.answer) {
+                appendMessage("assistant", data.answer);
+            } else {
+                appendMessage("assistant", "Sorry, I could not generate an answer.");
+            }
+        })
+        .catch(err => {
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = 'Ask AI 🚀';
+            console.error("Chat error:", err);
+            appendMessage("assistant", "AI Assistant is currently unavailable. Please try again later.");
+        });
+    }
+</script>
+{% endblock %}
