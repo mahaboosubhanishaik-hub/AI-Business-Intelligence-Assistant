@@ -17,6 +17,8 @@ from app.models.dataset import Dataset
 from app.services.data_loader import load_dataset
 from app.services.analytics import generate_analytics
 from app.services.data_quality import evaluate_data_quality
+from app.services.activity_log import record_activity
+from app import db
 
 
 analytics = Blueprint(
@@ -57,7 +59,7 @@ def dashboard(dataset_id):
     )
 
     if not os.path.exists(filepath):
-        flash("Dataset file could not be found on server.", "danger")
+        flash("This data file is unavailable. Upload it again to continue.", "danger")
         return redirect(url_for("data.datasets"))
 
     try:
@@ -71,6 +73,13 @@ def dashboard(dataset_id):
         # ----------------------------------
         analytics_data = generate_analytics(df)
         quality_report = evaluate_data_quality(df)
+        record_activity(
+            current_user.id,
+            "analytics_view",
+            "Viewed dataset analytics",
+            dataset_id=dataset.id
+        )
+        db.session.commit()
 
         # ----------------------------------
         # RENDER ANALYTICS DASHBOARD
@@ -83,5 +92,5 @@ def dashboard(dataset_id):
         )
 
     except Exception:
-        flash("Unable to analyze this dataset.", "danger")
+        flash("We could not analyze this data. Please try again.", "danger")
         return redirect(url_for("data.datasets"))

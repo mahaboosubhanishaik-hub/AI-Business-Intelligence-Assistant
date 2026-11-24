@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Administrator Sign In - AI BI Assistant{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <img
+                            src="{{ url_for('static', filename='images/AIBIlogo.png') }}"
+                            alt="AI BI Logo"
+                            style="height: 68px; width: auto;"
+                        >
+                        <div class="text-uppercase small fw-bold text-primary mt-3">Secure administrator access</div>
+                        <h1 class="h3 fw-bold mt-2">Admin Sign In</h1>
+                        <p class="text-muted mb-0">Manage business accounts and review application activity.</p>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('admin.login') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" for="admin-identifier">Administrator sign-in name or email</label>
+                            <input
+                                id="admin-identifier"
+                                type="text"
+                                name="identifier"
+                                class="form-control form-control-lg"
+                                autocomplete="username"
+                                required
+                            >
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold" for="admin-password">Password</label>
+                            <input
+                                id="admin-password"
+                                type="password"
+                                name="password"
+                                class="form-control form-control-lg"
+                                autocomplete="current-password"
+                                required
+                            >
+                        </div>
+                        <button class="btn btn-primary btn-lg w-100" type="submit">Sign in securely</button>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('auth.login') }}" class="text-decoration-none">Return to business account sign in</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

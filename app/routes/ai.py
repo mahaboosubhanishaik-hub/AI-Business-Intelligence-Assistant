@@ -14,6 +14,8 @@ from flask_login import (
 )
 
 from app.models.dataset import Dataset
+from app import db
+from app.services.activity_log import record_activity
 from app.services.data_loader import load_dataset
 from app.services.data_quality import evaluate_data_quality
 from app.services.analytics import generate_analytics
@@ -50,7 +52,7 @@ def assistant(dataset_id):
     if not os.path.exists(filepath):
         if request.method == "POST":
             return jsonify({"answer": "Dataset file not found.", "status": "error"}), 404
-        flash("Dataset file could not be found on server.", "danger")
+        flash("This data file is unavailable. Upload it again to continue.", "danger")
         return redirect(url_for("data.datasets"))
 
     try:
@@ -62,6 +64,13 @@ def assistant(dataset_id):
             data = request.get_json(silent=True) or request.form
             question = data.get("question", "").strip()
             res = ask_ai_assistant(df, dataset.name, quality_report, analytics_data, question)
+            record_activity(
+                current_user.id,
+                "ai_assistant",
+                "Asked the AI assistant about a dataset",
+                dataset_id=dataset.id
+            )
+            db.session.commit()
             return jsonify(res)
 
         # GET request
@@ -78,5 +87,5 @@ def assistant(dataset_id):
     except Exception:
         if request.method == "POST":
             return jsonify({"answer": "Error processing request.", "status": "error"}), 500
-        flash("Unable to load AI Assistant for this dataset.", "danger")
+        flash("We could not open AI Insights for this data. Please try again.", "danger")
         return redirect(url_for("data.datasets"))

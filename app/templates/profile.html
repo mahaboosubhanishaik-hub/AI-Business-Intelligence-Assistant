@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Business Account Profile - AI BI Assistant{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <h1 class="h3 fw-bold">Profile settings</h1>
+                    <p class="text-muted">
+                        Review your account details or update your name, Business Handle{% if current_user.is_admin %}, and email{% endif %}.
+                    </p>
+                    <div class="mb-4">
+                        <div class="mb-3">
+                            <div class="form-label fw-semibold">Full name</div>
+                            <p class="mb-0">{{ current_user.name }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Business Handle</label>
+                            <input class="form-control" value="{{ current_user.username }}" readonly>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Email</label>
+                            <input class="form-control" value="{{ current_user.email }}" readonly>
+                        </div>
+                        <button
+                            class="btn btn-outline-primary"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#edit-profile-form"
+                            aria-expanded="false"
+                            aria-controls="edit-profile-form"
+                        >
+                            Edit Profile
+                        </button>
+                    </div>
+                    <div class="collapse" id="edit-profile-form">
+                        <form method="POST" action="{{ url_for('auth.profile') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" for="profile-name">Full name</label>
+                                <input id="profile-name" class="form-control" name="name" maxlength="100" value="{{ current_user.name }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" for="profile-username">Business Handle</label>
+                                <input
+                                    id="profile-username"
+                                    class="form-control"
+                                    name="username"
+                                    value="{{ current_user.username }}"
+                                    minlength="3"
+                                    maxlength="40"
+                                    {% if not current_user.is_admin %}
+                                    pattern="[a-zA-Z0-9_.-]{3,40}"
+                                    {% endif %}
+                                    autocomplete="username"
+                                    required
+                                >
+                                <div class="form-text">Use 3-40 letters, numbers, dots, underscores, or hyphens.</div>
+                            </div>
+                            {% if current_user.is_admin %}
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" for="profile-email">Email</label>
+                                <input
+                                    id="profile-email"
+                                    class="form-control"
+                                    type="email"
+                                    name="email"
+                                    value="{{ current_user.email }}"
+                                    maxlength="120"
+                                    autocomplete="email"
+                                    required
+                                >
+                            </div>
+                            {% endif %}
+                            <button class="btn btn-primary" type="submit">Save profile</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="card border-0 shadow-sm rounded-4 mt-4">
+                <div class="card-body p-4">
+                    <h2 class="h5 fw-bold">Account Settings</h2>
+                    <p class="text-muted">Update your account password.</p>
+                    <a class="btn btn-outline-primary" href="{{ url_for('auth.change_password') }}">Change Password</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

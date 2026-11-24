@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Business Intelligence Analytics - {{ dataset.name }} - AI BI Assistant{% endblock %}
+{% block title %}Business Analytics - {{ dataset.name }} - AI BI Assistant{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -66,7 +66,7 @@
             <div>
                 <div class="d-flex align-items-center gap-2 mb-1">
                     <h1 class="page-title mb-0">
-                        📈 BI Analytics: {{ dataset.name }}
+                        📈 Business Analytics: {{ dataset.name }}
                     </h1>
                     {% if quality_report %}
                         <span class="badge {{ quality_report.status_info.badge_class }} px-3 py-2 fs-6 rounded-pill">
@@ -75,7 +75,7 @@
                     {% endif %}
                 </div>
                 <p class="text-muted mb-0">
-                    Automated financial KPIs, multi-dimensional breakdowns, time trends, and numeric statistics.
+                    Review revenue, profit, sales trends, and other key business measures.
                 </p>
             </div>
             <div>
@@ -101,14 +101,14 @@
     {% if quality_report and quality_report.score < 75.0 %}
     <div class="alert alert-warning border-start border-4 border-warning shadow-sm mb-4 p-3 rounded-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div>
-            <h5 class="fw-bold mb-1 text-dark">⚠️ DATA QUALITY WARNING</h5>
+            <h5 class="fw-bold mb-1 text-dark">⚠️ Data quality needs attention</h5>
             <p class="mb-0 text-dark small">
-                This dataset has detected quality issues (Quality Score: <strong>{{ quality_report.score }}%</strong> - <strong>{{ quality_report.status }}</strong>).
-                Analytics and business decisions may be affected by missing, duplicate, or irregular entries.
+                This dataset has quality issues (score: <strong>{{ quality_report.score }}%</strong> — <strong>{{ quality_report.status }}</strong>).
+                Missing, repeated, or unusual values may affect your analysis.
             </p>
         </div>
         <a href="{{ url_for('data.quality_analysis', dataset_id=dataset.id) }}" class="btn btn-sm btn-warning text-dark fw-bold px-3">
-            🛡️ Inspect Quality Report
+            🛡️ Review Quality Report
         </a>
     </div>
     {% endif %}
@@ -157,7 +157,7 @@
         <div class="col-6 col-md-4 col-lg-2">
             <div class="card card-box kpi-card">
                 <div class="card-body p-3 text-center">
-                    <div class="kpi-label">Total Records</div>
+                    <div class="kpi-label">Total Rows</div>
                     <div class="kpi-value text-dark">{{ "{:,}".format(analytics.total_rows) }}</div>
                 </div>
             </div>
@@ -243,7 +243,7 @@
     <div class="card insight-card mb-5">
         <div class="card-body p-4">
             <h4 class="fw-bold mb-4">
-                💡 Key Automated Insights
+                💡 Key Insights
             </h4>
             {% for insight in analytics.insights %}
             <div class="insight-item">
@@ -334,7 +334,7 @@
     <div class="card card-box mb-5">
         <div class="card-body p-4">
             <h4 class="fw-bold mb-4">
-                📐 Generic Numeric Statistics
+                📐 Summary Statistics
             </h4>
             {% if analytics.column_stats %}
             <div class="table-responsive">
@@ -369,7 +369,7 @@
             </div>
             {% else %}
             <p class="text-muted mb-0">
-                No numeric columns detected for statistical calculation.
+                No number-based columns are available for summary statistics.
             </p>
             {% endif %}
         </div>

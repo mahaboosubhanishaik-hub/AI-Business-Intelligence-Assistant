@@ -29,16 +29,19 @@
                         method="POST"
                         action="{{ url_for('auth.login') }}"
                     >
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold">
-                                Email Address
+                                Business Handle or Registered Email
                             </label>
                             <input
-                                type="email"
-                                name="email"
+                                id="login-identifier"
+                                type="text"
+                                name="identifier"
                                 class="form-control form-control-lg fs-6"
-                                placeholder="name@example.com"
+                                placeholder="Business Handle or email@example.com"
+                                autocomplete="username"
                                 required
                             >
                         </div>
@@ -52,6 +55,7 @@
                                 name="password"
                                 class="form-control form-control-lg fs-6"
                                 placeholder="••••••••"
+                                autocomplete="current-password"
                                 required
                             >
                         </div>
@@ -62,8 +66,55 @@
                         >
                             Sign In
                         </button>
-
                     </form>
+
+                    <div class="border-top mt-4 pt-3">
+                        <p class="small text-muted mb-2">
+                            Enter your business account details so the administrator can verify your request.
+                        </p>
+                        <div class="row g-2 mb-2">
+                            <div class="col-12">
+                                <label class="form-label small mb-1" for="recovery-business-name">Business Name</label>
+                                <input
+                                    id="recovery-business-name"
+                                    class="form-control form-control-sm"
+                                    type="text"
+                                    maxlength="100"
+                                    autocomplete="organization"
+                                    placeholder="Registered Business Name"
+                                >
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small mb-1" for="recovery-email">Registered Email</label>
+                                <input
+                                    id="recovery-email"
+                                    class="form-control form-control-sm"
+                                    type="email"
+                                    maxlength="120"
+                                    autocomplete="email"
+                                    placeholder="Registered Email"
+                                >
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small mb-1" for="recovery-username">Business Handle</label>
+                                <input
+                                    id="recovery-username"
+                                    class="form-control form-control-sm"
+                                    type="text"
+                                    maxlength="40"
+                                    autocomplete="username"
+                                    placeholder="Business Handle"
+                                >
+                            </div>
+                        </div>
+                        <a
+                            id="passwordRequestLink"
+                            href="mailto:adminaibia@gmail.com?subject=AI%20BIA%20%E2%80%93%20Business%20Account%20Password%20Recovery%20Request&amp;body=Dear%20Admin%2C%0D%0A%0D%0AI%20have%20forgotten%20my%20AI%20Business%20Intelligence%20Assistant%20account%20password.%20Please%20help%20me%20restore%20access%20by%20issuing%20a%20temporary%20password.%0D%0A%0D%0ABusiness%20Details%3A%0D%0A%0D%0ABusiness%20Name%3A%20%5BRegistered%20Business%20Name%5D%0D%0ARegistered%20Email%3A%20%5BRegistered%20Email%5D%0D%0ABusiness%20Handle%3A%20%5BBusiness%20Handle%5D%0D%0A%0D%0APlease%20verify%20my%20account%20and%20send%20a%20temporary%20password%20to%20my%20registered%20email%20address.%0D%0A%0D%0AThank%20you%2C%0D%0AAI%20Business%20Intelligence%20Assistant%20Account%20Holder"
+                            class="small fw-semibold text-decoration-underline"
+                        >
+                            Forgot Password?
+                        </a>
+                    </div>
 
                     <div class="text-center mt-4">
                         <span class="text-muted">Don't have an account?</span>
@@ -84,4 +135,71 @@
     </div>
 
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (() => {
+        const requestLink = document.getElementById("passwordRequestLink");
+        const loginIdentifier = document.getElementById("login-identifier");
+        const businessName = document.getElementById("recovery-business-name");
+        const registeredEmail = document.getElementById("recovery-email");
+        const username = document.getElementById("recovery-username");
+        const subject = "AI BIA \u2013 Business Account Password Recovery Request";
+        let autoFilledRecoveryField = null;
+        let autoFilledRecoveryValue = "";
+
+        function updateEmailDraft() {
+            const body = [
+                "Dear Admin,",
+                "",
+                "I have forgotten my AI Business Intelligence Assistant account password. Please help me restore access by issuing a temporary password.",
+                "",
+                "Business Details:",
+                "",
+                `Business Name: ${businessName.value.trim() || "[Registered Business Name]"}`,
+                `Registered Email: ${registeredEmail.value.trim() || "[Registered Email]"}`,
+                `Business Handle: ${username.value.trim() || "[Business Handle]"}`,
+                "",
+                "Please verify my account and send a temporary password to my registered email address.",
+                "",
+                "Thank you,",
+                "AI Business Intelligence Assistant Account Holder"
+            ].join("\r\n");
+
+            requestLink.href = `mailto:adminaibia@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        }
+
+        function syncLoginIdentifier() {
+            if (
+                autoFilledRecoveryField
+                && autoFilledRecoveryField.value === autoFilledRecoveryValue
+            ) {
+                autoFilledRecoveryField.value = "";
+            }
+
+            autoFilledRecoveryField = null;
+            autoFilledRecoveryValue = "";
+
+            const value = loginIdentifier.value.trim();
+            if (value) {
+                const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+                const targetField = isEmail ? registeredEmail : username;
+                if (!targetField.value.trim()) {
+                    targetField.value = value;
+                    autoFilledRecoveryField = targetField;
+                    autoFilledRecoveryValue = value;
+                }
+            }
+
+            updateEmailDraft();
+        }
+
+        [businessName, registeredEmail, username].forEach(field => {
+            field.addEventListener("input", updateEmailDraft);
+        });
+        loginIdentifier.addEventListener("input", syncLoginIdentifier);
+        syncLoginIdentifier();
+    })();
+</script>
 {% endblock %}

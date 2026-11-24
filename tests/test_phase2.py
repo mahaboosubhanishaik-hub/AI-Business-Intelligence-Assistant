@@ -91,7 +91,7 @@ class Phase2TestCase(unittest.TestCase):
 
         response = self.client.post("/data/upload", data=data, content_type="multipart/form-data", follow_redirects=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b"Dataset uploaded and profiled successfully!", response.data)
+        self.assertIn(b"Business data uploaded successfully.", response.data)
         self.assertIn(b"sample_sales", response.data)
 
         # Verify dataset saved in DB
@@ -114,7 +114,7 @@ class Phase2TestCase(unittest.TestCase):
             "file": (io.BytesIO(b"executable code"), "malicious.exe")
         }
         response = self.client.post("/data/upload", data=data, content_type="multipart/form-data", follow_redirects=True)
-        self.assertIn(b"Only CSV (.csv) and Excel (.xlsx, .xls) files are allowed", response.data)
+        self.assertIn(b"Choose a CSV or Excel file", response.data)
 
         # Empty file
         data = {

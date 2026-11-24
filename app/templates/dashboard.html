@@ -4,12 +4,6 @@
 
 {% block extra_css %}
 <style>
-    .welcome-section {
-        padding: 30px 0 20px;
-    }
-    .welcome-title {
-        font-weight: 700;
-    }
     .feature-card {
         border: none;
         border-radius: 18px;
@@ -42,23 +36,77 @@
 <div class="container py-3">
 
     <!-- WELCOME SECTION -->
-    <section class="welcome-section">
-        <div class="d-flex align-items-center gap-3">
-            <img
-                src="{{ url_for('static', filename='images/AIBIlogo.png') }}"
-                alt="AI BI Logo"
-                style="height: 55px; width: auto; object-fit: contain;"
-            >
-            <div>
-                <h1 class="welcome-title mb-1">
-                    Business Intelligence Dashboard
-                </h1>
-                <p class="text-muted mb-0">
-                    Welcome back, {{ current_user.name }}. Analyze your business data with AI.
-                </p>
+    <section class="welcome-section" aria-labelledby="dashboard-welcome-title">
+        <p class="welcome-eyebrow">Business overview</p>
+        <h1 class="welcome-title" id="dashboard-welcome-title">Welcome</h1>
+        <p class="welcome-greeting">Hello, {{ current_user.name }}!</p>
+        <p class="welcome-description">Here's your business overview and latest insights.</p>
+    </section>
+
+    <section class="row g-3 mb-4" aria-label="Account overview">
+        <div class="col-md-6 col-lg-4">
+            <div class="card action-card h-100">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="small text-muted">Your datasets</div>
+                        <div class="h3 fw-bold mb-0">{{ dataset_count }}</div>
+                    </div>
+                    <a class="btn btn-outline-primary" href="{{ url_for('data.datasets') }}">View data</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <div class="card action-card h-100">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="small text-muted">Analysis history</div>
+                        <div class="fw-semibold">Review your recent analysis activity</div>
+                    </div>
+                    <a class="btn btn-outline-primary" href="{{ url_for('main.analysis_history') }}">View history</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <div class="card action-card h-100">
+                <div class="card-body d-flex flex-column align-items-start justify-content-between gap-3">
+                    <div>
+                        <div class="small text-muted">Account Settings</div>
+                        <div class="fw-semibold">Update your account details and password</div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a class="btn btn-outline-primary" href="{{ url_for('auth.profile') }}">Account Profile</a>
+                        <a class="btn btn-primary" href="{{ url_for('auth.change_password') }}">Change Password</a>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
+
+    {% if recent_audits %}
+    <section class="card action-card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+                <h2 class="h5 fw-bold mb-0">Recent quality checks</h2>
+                <a href="{{ url_for('main.analysis_history') }}" class="small">All analysis history</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead><tr><th>Dataset</th><th>Quality</th><th>Status</th><th>Date</th></tr></thead>
+                    <tbody>
+                        {% for audit in recent_audits %}
+                        <tr>
+                            <td><a href="{{ url_for('data.quality_analysis', dataset_id=audit.dataset_id) }}">{{ audit.dataset.name }}</a></td>
+                            <td>{{ "%.1f"|format(audit.quality_score) }}%</td>
+                            <td>{{ audit.status }}</td>
+                            <td>{{ audit.audited_at.strftime("%Y-%m-%d %H:%M") }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    {% endif %}
 
     <!-- QUICK ACTIONS -->
     <div class="row g-4 mb-5">
@@ -69,11 +117,9 @@
                 <div class="card-body p-4">
                     <div class="row align-items-center">
                         <div class="col">
-                            <h4 class="fw-bold mb-1">
-                                📂 Upload Dataset
-                            </h4>
+                            <h4 class="fw-bold mb-1">📂 Upload Business Data</h4>
                             <p class="text-muted mb-0">
-                                Upload CSV or Excel files for analysis.
+                                Upload a CSV or Excel file to review your business data.
                             </p>
                         </div>
                         <div class="col-auto">
@@ -89,7 +135,7 @@
             </div>
         </div>
 
-        <!-- My Datasets -->
+        <!--         Business Data -->
         <div class="col-md-6">
             <div class="card action-card">
                 <div class="card-body p-4">
@@ -99,7 +145,7 @@
                                 📊 My Datasets
                             </h4>
                             <p class="text-muted mb-0">
-                                View and manage your uploaded datasets.
+                                View and manage your uploaded business data.
                             </p>
                         </div>
                         <div class="col-auto">
@@ -128,16 +174,16 @@
                         📊
                     </div>
                     <h4 class="fw-bold">
-                        Data Profiling & Quality
+                        Data Quality
                     </h4>
                     <p class="text-muted">
-                        Automatically evaluate dataset completeness, uniqueness, validity, and outliers.
+                        Check for missing, repeated, invalid, and unusual values.
                     </p>
                     <a
                         href="{{ url_for('data.datasets') }}"
                         class="btn btn-outline-primary mt-2"
                     >
-                        Inspect Datasets
+                        Review Data
                     </a>
                 </div>
             </div>
@@ -151,7 +197,7 @@
                         🤖
                     </div>
                     <h4 class="fw-bold">
-                        AI Intelligence
+                        AI Insights
                     </h4>
                     <p class="text-muted">
                         Ask natural-language questions about your revenue, top products, regions, and metrics.
@@ -166,7 +212,7 @@
             </div>
         </div>
 
-        <!-- BI Analytics & Monitoring -->
+        <!-- Business Analytics -->
         <div class="col-md-4">
             <div class="card feature-card">
                 <div class="card-body p-4">
@@ -174,16 +220,16 @@
                         📈
                     </div>
                     <h4 class="fw-bold">
-                        BI Analytics & Monitoring
+                        Business Analytics
                     </h4>
                     <p class="text-muted">
-                        Financial KPIs, Chart.js visualizations, quality tracking, and degradation alerts.
+                        Review business measures, charts, and changes in data quality.
                     </p>
                     <a
                         href="{{ url_for('data.datasets') }}"
                         class="btn btn-outline-primary mt-2"
                     >
-                        View BI Analytics
+                        View Business Analytics
                     </a>
                 </div>
             </div>

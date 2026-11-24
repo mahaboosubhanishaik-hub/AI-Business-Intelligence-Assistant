@@ -34,7 +34,7 @@ class Phase1TestCase(unittest.TestCase):
     def test_04_register_route_get(self):
         response = self.client.get("/auth/register")
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b"Create Account", response.data)
+        self.assertIn(b"Create a Business Account", response.data)
 
     def test_05_protected_routes_redirect_unauthenticated(self):
         for path in ["/dashboard", "/data/datasets", "/data/upload"]:

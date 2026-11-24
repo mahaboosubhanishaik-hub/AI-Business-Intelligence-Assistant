@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Upload Dataset - AI BI Assistant{% endblock %}
+{% block title %}Upload Business Data - AI BI Assistant{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -14,11 +14,11 @@
                 <div class="card-body p-4 p-md-5">
 
                     <h2 class="fw-bold mb-2">
-                        📂 Upload Dataset
+                        📂 Upload Business Data
                     </h2>
 
                     <p class="text-muted mb-4">
-                        Upload your business data (CSV or Excel) to analyze structure and profile key metrics.
+                        Upload a CSV or Excel file to review its structure, quality, and key measures.
                     </p>
 
                     <form
@@ -26,10 +26,11 @@
                         enctype="multipart/form-data"
                         action="{{ url_for('data.upload') }}"
                     >
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                         <div class="mb-4">
                             <label class="form-label fw-semibold">
-                                Select File (.csv, .xlsx, .xls)
+                                Select a File (.csv, .xlsx, .xls)
                             </label>
 
                             <input
@@ -40,7 +41,7 @@
                                 required
                             >
                             <div class="form-text mt-2 text-muted">
-                                Supported formats: CSV, Excel (.xlsx, .xls) up to standard dataset sizes.
+                                Supported formats: CSV and Excel (.xlsx, .xls).
                             </div>
                         </div>
 
@@ -49,7 +50,7 @@
                                 type="submit"
                                 class="btn btn-primary px-4 py-2 shadow-sm"
                             >
-                                📊 Analyze Dataset
+                                Upload and Review Data
                             </button>
 
                             <a

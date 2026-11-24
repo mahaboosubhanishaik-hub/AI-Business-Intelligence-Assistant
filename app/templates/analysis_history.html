@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis History - AI BI Assistant{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="h2 fw-bold mb-1">Business Analysis History</h1>
+            <p class="text-muted mb-0">Review analyses, data quality checks, and AI activity for your account.</p>
+        </div>
+        <a class="btn btn-outline-primary" href="{{ url_for('main.dashboard') }}">Back to dashboard</a>
+    </div>
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('main.analysis_history') }}" class="row g-3 align-items-end">
+                <div class="col-12 col-lg-4">
+                    <label class="form-label fw-semibold" for="history-search">Search history</label>
+                    <input id="history-search" class="form-control" type="search" name="q" value="{{ search }}" maxlength="100" placeholder="Activity, dataset, or status">
+                </div>
+                <div class="col-6 col-lg-2">
+                    <label class="form-label fw-semibold" for="history-start-date">From</label>
+                    <input id="history-start-date" class="form-control" type="date" name="start_date" value="{{ start_date }}">
+                </div>
+                <div class="col-6 col-lg-2">
+                    <label class="form-label fw-semibold" for="history-end-date">To</label>
+                    <input id="history-end-date" class="form-control" type="date" name="end_date" value="{{ end_date }}">
+                </div>
+                <div class="col-12 col-lg-4 d-flex flex-wrap gap-2">
+                    <button class="btn btn-primary" type="submit">Apply filters</button>
+                    <a class="btn btn-outline-secondary" href="{{ url_for('main.analysis_history') }}">Clear</a>
+                    <a class="btn btn-outline-primary ms-lg-auto" href="{{ url_for('main.analysis_history', q=search, start_date=start_date, end_date=end_date, export='csv') }}">Export CSV</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light"><tr><th class="ps-4">Date</th><th>Analysis</th><th>Dataset</th><th class="pe-4">Details</th></tr></thead>
+                <tbody>
+                    {% for entry in history %}
+                    <tr>
+                        <td class="ps-4 text-nowrap">{{ entry.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+                        <td>{{ entry.event_type|replace('_', ' ')|title }}</td>
+                        <td>
+                            {% if entry.dataset_id %}
+                            <a href="{{ url_for('analytics.dashboard', dataset_id=entry.dataset_id) }}">Open dataset</a>
+                            {% else %}Dataset removed{% endif %}
+                        </td>
+                        <td class="pe-4">{{ entry.description }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" class="text-center text-muted py-5">Your analysis history will appear here after you review a dataset.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mt-4">
+        <div class="card-header bg-white border-0 pt-4 px-4">
+            <h2 class="h5 fw-bold mb-1">Data quality history</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light"><tr><th class="ps-4">Date</th><th>Dataset</th><th>Score</th><th>Status</th></tr></thead>
+                <tbody>
+                    {% for audit in quality_audits %}
+                    <tr>
+                        <td class="ps-4 text-nowrap">{{ audit.audited_at.strftime("%Y-%m-%d %H:%M") }}</td>
+                        <td><a href="{{ url_for('data.quality_analysis', dataset_id=audit.dataset_id) }}">{{ audit.dataset.name }}</a></td>
+                        <td>{{ "%.1f"|format(audit.quality_score) }}%</td>
+                        <td>{{ audit.status }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" class="text-center text-muted py-4">No quality checks have been recorded.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

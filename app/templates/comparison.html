@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Compare Performance - AI BI Assistant{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="h2 fw-bold mb-1">Compare performance</h1>
+            <p class="text-muted mb-0">Compare a numeric measure by a group, month, or both.</p>
+        </div>
+        <a class="btn btn-outline-primary" href="{{ url_for('reports.budgets') }}">Budget vs Actual</a>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <form method="GET" action="{{ url_for('reports.compare') }}" class="row g-3 align-items-end">
+                <div class="col-12 col-md-8">
+                    <label class="form-label fw-semibold" for="compare-dataset">Dataset</label>
+                    <select class="form-select" id="compare-dataset" name="dataset_id" required>
+                        <option value="">Choose a dataset</option>
+                        {% for dataset in datasets %}
+                        <option value="{{ dataset.id }}" {% if selected_dataset and selected_dataset.id == dataset.id %}selected{% endif %}>{{ dataset.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 d-grid">
+                    <button class="btn btn-outline-primary" type="submit">Load columns</button>
+                </div>
+            </form>
+
+            {% if selected_dataset %}
+            <hr class="my-4">
+            <form method="GET" action="{{ url_for('reports.compare') }}" class="row g-3 align-items-end">
+                <input type="hidden" name="dataset_id" value="{{ selected_dataset.id }}">
+                <div class="col-12 col-md-3">
+                    <label class="form-label fw-semibold" for="compare-value">Measure to compare</label>
+                    <select class="form-select" id="compare-value" name="value_column" required>
+                        <option value="">Choose numeric column</option>
+                        {% for column in numeric_columns %}
+                        <option value="{{ column }}" {% if value_column == column %}selected{% endif %}>{{ column }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label fw-semibold" for="compare-group">Group by (optional)</label>
+                    <select class="form-select" id="compare-group" name="group_column">
+                        <option value="">No group</option>
+                        {% for column in columns %}
+                        <option value="{{ column }}" {% if group_column == column %}selected{% endif %}>{{ column }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label fw-semibold" for="compare-date">Compare by month (optional)</label>
+                    <select class="form-select" id="compare-date" name="date_column">
+                        <option value="">No date grouping</option>
+                        {% for column in columns %}
+                        <option value="{{ column }}" {% if date_column == column %}selected{% endif %}>{{ column }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12 col-md-3 d-grid">
+                    <button class="btn btn-primary" type="submit">Compare</button>
+                </div>
+            </form>
+            <p class="small text-muted mt-3 mb-0">Choose at least a group or date column. Monthly totals use the selected measure's sum.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if rows %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 pt-4 px-4">
+            <h2 class="h5 fw-bold mb-1">{{ value_column }} comparison</h2>
+            <p class="small text-muted mb-0">{{ selected_dataset.name }}</p>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        {% for dimension in dimensions %}<th class="ps-4">{{ dimension|title }}</th>{% endfor %}
+                        <th>Actual total</th><th>Records</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr>
+                        {% for dimension in dimensions %}
+                        <td class="ps-4">{{ row[dimension] }}</td>
+                        {% endfor %}
+                        <td>{{ "{:,.2f}".format(row.actual) }}</td>
+                        <td>{{ row.records }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% elif selected_dataset and value_column %}
+    <div class="alert alert-info">No rows matched the selected columns.</div>
+    {% endif %}
+</div>
+{% endblock %}

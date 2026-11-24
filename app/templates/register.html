@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Register - AI Business Intelligence Assistant{% endblock %}
+{% block title %}Create a Business Account - AI Business Intelligence Assistant{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -22,36 +22,55 @@
                     </div>
 
                     <h2 class="text-center fw-bold mb-4">
-                        Create Account
+                        Create a Business Account
                     </h2>
 
                     <form
                         method="POST"
                         action="{{ url_for('auth.register') }}"
                     >
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold">
-                                Full Name
+                                Your Name
                             </label>
                             <input
                                 type="text"
                                 name="name"
                                 class="form-control form-control-lg fs-6"
-                                placeholder="John Doe"
+                                placeholder="Your name"
                                 required
                             >
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold">
-                                Email Address
+                                Business Handle
+                            </label>
+                            <input
+                                type="text"
+                                name="username"
+                                class="form-control form-control-lg fs-6"
+                                placeholder="your-business"
+                                minlength="3"
+                                maxlength="40"
+                                pattern="[a-zA-Z0-9_.-]{3,40}"
+                                autocomplete="username"
+                                required
+                            >
+                            <div class="form-text">Choose a unique sign-in handle. Use 3-40 letters, numbers, dots, underscores, or hyphens.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                Registered Email
                             </label>
                             <input
                                 type="email"
                                 name="email"
                                 class="form-control form-control-lg fs-6"
-                                placeholder="name@example.com"
+                                placeholder="you@business.com"
                                 required
                             >
                         </div>
@@ -64,7 +83,10 @@
                                 type="password"
                                 name="password"
                                 class="form-control form-control-lg fs-6"
-                                placeholder="••••••••"
+                                placeholder="At least 8 characters"
+                                minlength="8"
+                                maxlength="128"
+                                autocomplete="new-password"
                                 required
                             >
                         </div>
@@ -73,13 +95,13 @@
                             type="submit"
                             class="btn btn-primary btn-lg w-100 fs-6 shadow-sm"
                         >
-                            Register
+                            Create Account
                         </button>
 
                     </form>
 
                     <div class="text-center mt-4">
-                        <span class="text-muted">Already have an account?</span>
+                        <span class="text-muted">                        Already have a business account?</span>
                         <a
                             href="{{ url_for('auth.login') }}"
                             class="fw-semibold text-decoration-none ms-1"

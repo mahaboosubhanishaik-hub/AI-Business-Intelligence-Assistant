@@ -56,7 +56,7 @@
         </div>
 
         <div class="badge bg-primary-subtle text-primary mb-3 px-3 py-2 fs-6 rounded-pill fw-semibold border border-primary-subtle">
-            ⚡ Intelligent Enterprise Data Platform
+            Business data and insights
         </div>
 
         <h1 class="display-4 fw-bold text-dark mb-3">
@@ -64,7 +64,7 @@
         </h1>
 
         <p class="lead text-muted mx-auto mb-4" style="max-width: 750px; font-size: 1.2rem;">
-            Empower your organization with automated dataset profiling, intelligent Data Quality Monitoring (DQM), business analytics, and AI-driven recommendations.
+            Review your business data, check data quality, explore performance, and get clear AI-powered recommendations.
         </p>
 
         <!-- CTA BUTTONS -->
@@ -75,13 +75,13 @@
                     href="{{ url_for('main.dashboard') }}"
                     class="btn btn-primary btn-lg shadow px-4 py-3 fw-bold rounded-3"
                 >
-                    🚀 Enter Main Dashboard
+                    Open Dashboard
                 </a>
                 <a
                     href="{{ url_for('data.datasets') }}"
                     class="btn btn-outline-primary btn-lg px-4 py-3 fw-bold rounded-3"
                 >
-                    📊 View My Datasets
+                    View Business Datasets
                 </a>
             </div>
 
@@ -92,13 +92,13 @@
                     href="{{ url_for('auth.login') }}"
                     class="btn btn-outline-primary btn-lg px-4 py-3 fw-bold rounded-3 shadow-sm"
                 >
-                    🔑 Login to Account
+                    Sign In
                 </a>
                 <a
                     href="{{ url_for('auth.register') }}"
                     class="btn btn-primary btn-lg px-4 py-3 fw-bold rounded-3 shadow"
                 >
-                    ✨ Create Free Account
+                    Create a Business Account
                 </a>
             </div>
 
@@ -114,12 +114,12 @@
             <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center bg-white">
                 <div class="card-body">
                     <img src="{{ url_for('static', filename='images/AIBIlogo.png') }}" alt="Logo" style="height: 50px; width: auto;" class="mb-3">
-                    <h3 class="fw-bold mb-2">New User?</h3>
+                    <h3 class="fw-bold mb-2">New to AI BIA?</h3>
                     <p class="text-muted mb-4">
-                        Register your account in seconds to start uploading datasets, profiling data quality, and analyzing metrics.
+                        Create a business account to upload data, check quality, and review performance.
                     </p>
                     <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm">
-                        Register Account
+                        Create Account
                     </a>
                 </div>
             </div>
@@ -130,12 +130,12 @@
             <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center bg-white">
                 <div class="card-body">
                     <img src="{{ url_for('static', filename='images/AIBIlogo.png') }}" alt="Logo" style="height: 50px; width: auto;" class="mb-3">
-                    <h3 class="fw-bold mb-2">Returning User?</h3>
+                    <h3 class="fw-bold mb-2">Already have an account?</h3>
                     <p class="text-muted mb-4">
-                        Sign in to access your business intelligence dashboard, uploaded datasets, and data quality reports.
+                        Sign in to view your dashboard, business data, and quality reports.
                     </p>
                     <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg w-100 fw-bold">
-                        Login Now
+                        Sign In
                     </a>
                 </div>
             </div>
@@ -147,8 +147,8 @@
     <div class="my-5 pt-3">
 
         <div class="text-center mb-5">
-            <h2 class="fw-bold">Comprehensive BI System Build-Up</h2>
-            <p class="text-muted">Built from the ground up for seamless data management and automated quality assurance.</p>
+            <h2 class="fw-bold">Tools for Better Business Decisions</h2>
+            <p class="text-muted">Manage business data, review quality, and understand performance in one place.</p>
         </div>
 
         <div class="row g-4">
@@ -160,9 +160,9 @@
                         <div class="feature-icon-wrapper bg-primary-subtle text-primary">
                             📂
                         </div>
-                        <h4 class="fw-bold mb-2">1. Dataset Management</h4>
+                        <h4 class="fw-bold mb-2">1. Business Data</h4>
                         <p class="text-muted mb-0">
-                            Upload CSV and Excel files securely. Tracks file sizes, row/column metrics, upload timestamps, and enforces strict user ownership security.
+                            Upload CSV and Excel files securely. Your account can access only its own data.
                         </p>
                     </div>
                 </div>
@@ -177,7 +177,7 @@
                         </div>
                         <h4 class="fw-bold mb-2">2. Data Profiling</h4>
                         <p class="text-muted mb-0">
-                            Automatic memory usage estimation, smart data type classification (integer, float, string, datetime), missing value ratios, and unique value analysis.
+                            See column types, missing values, unique values, and other useful data details.
                         </p>
                     </div>
                 </div>
@@ -190,9 +190,9 @@
                         <div class="feature-icon-wrapper bg-warning-subtle text-warning">
                             🛡️
                         </div>
-                        <h4 class="fw-bold mb-2">3. Data Quality (DQM)</h4>
+                        <h4 class="fw-bold mb-2">3. Data Quality</h4>
                         <p class="text-muted mb-0">
-                            Evaluates dataset health across 4 dimensions: Completeness, Uniqueness, Validity, and IQR statistical Outlier detection with structured severity audits.
+                            Check for missing, repeated, invalid, or unusual values in your data.
                         </p>
                     </div>
                 </div>
@@ -207,7 +207,7 @@
                         </div>
                         <h4 class="fw-bold mb-2">4. Business Analytics</h4>
                         <p class="text-muted mb-0">
-                            Interactive financial KPIs, profit margins, total quantities, and dynamic Chart.js visualizations by product line and geographic region.
+                            Review revenue, profit, sales totals, and charts by product, category, or region.
                         </p>
                     </div>
                 </div>
@@ -220,9 +220,9 @@
                         <div class="feature-icon-wrapper bg-danger-subtle text-danger">
                             🤖
                         </div>
-                        <h4 class="fw-bold mb-2">5. AI Intelligence</h4>
+                        <h4 class="fw-bold mb-2">5. AI Insights</h4>
                         <p class="text-muted mb-0">
-                            Natural language dataset querying and automated AI recommendations for decision-makers powered by Google Gemini.
+                            Ask questions about your data and get clear recommendations.
                         </p>
                     </div>
                 </div>
@@ -237,7 +237,7 @@
                         </div>
                         <h4 class="fw-bold mb-2">6. Security & Storage</h4>
                         <p class="text-muted mb-0">
-                            Werkzeug password hashing, PostgreSQL/Neon database integration, sanitized filenames, and protected endpoints.
+                            Secure sign-in, protected business data, and reliable database storage.
                         </p>
                     </div>
                 </div>

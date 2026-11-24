@@ -54,6 +54,12 @@ class Dataset(db.Model):
         nullable=False
     )
 
+    monthly_budgets = db.relationship(
+        "MonthlyBudget",
+        back_populates="dataset",
+        cascade="all, delete-orphan"
+    )
+
     @property
     def file_size_human(self):
         """Format file_size_bytes into human readable string (KB, MB)."""

@@ -8,6 +8,8 @@ An enterprise-grade, data-grounded Business Intelligence (BI) platform combining
 
 The **AI Business Intelligence Assistant** enables business users and decision-makers to effortlessly upload datasets (CSV or Excel), evaluate dataset health, inspect financial KPIs, visualize multi-dimensional performance metrics, track data quality degradation over time, and interact with an AI assistant for data-grounded insights and executive recommendations.
 
+For the full project structure, architecture, data flow, configuration, and operations guide, see [Project Overview](docs/PROJECT_OVERVIEW.md).
+
 ---
 
 ## ✨ Key Features
@@ -47,7 +49,7 @@ The **AI Business Intelligence Assistant** enables business users and decision-m
    - Graceful fallback mode if `GEMINI_API_KEY` is not configured.
 
 6. **Advanced Quality Monitoring & Degradation Alerts**
-   - Historical quality snapshot persistence via `QualityAudit` PostgreSQL table.
+   - Historical quality snapshot persistence via the database-backed `QualityAudit` table.
    - Tracks quality score change ($\Delta \text{score}$) between dataset inspections.
    - Triggers **🚨 DATA QUALITY DEGRADATION DETECTED** alert if quality score drops by 10 points or more.
    - Centralized threshold configuration for critical missing values, duplicates, and outliers.
@@ -55,15 +57,25 @@ The **AI Business Intelligence Assistant** enables business users and decision-m
 7. **Enterprise Security & Rate Limiting**
    - Strict dataset ownership isolation (`Dataset.query.filter_by(id=dataset_id, user_id=current_user.id).first_or_404()`) across all endpoints.
    - Werkzeug password hashing (`scrypt`).
-   - Rate limiting via `Flask-Limiter`.
+   - Role-separated administrator/client sign-in, CSRF protection, administrator login throttling, and current-password-verified password changes.
+   - Login rate limits and temporary account lockout after repeated failed credentials.
+   - Admin-issued temporary passwords are stored as hashes, displayed once to the administrator for manual delivery, and require a password change before clients can continue.
+   - Administrators can update their business handle and email from profile settings.
+   - Password recovery opens a prefilled administrator email draft and never includes or emails an existing password.
    - Security HTTP headers middleware (`X-Content-Type-Options`, `X-Frame-Options`, `X-XSS-Protection`, `Referrer-Policy`).
+
+8. **Business Planning & Reporting**
+   - Monthly budgets can be mapped to date, numeric value, and optional group columns in a user's uploaded dataset.
+   - Compare numeric measures by business groups and calendar months.
+   - Generate printable monthly management reports with budget variances, analysis activity, and data-quality summaries.
+   - Search and filter analysis history by text and date, then export account-scoped history as CSV.
 
 ---
 
 ## 🛠️ Technology Stack
 
-- **Backend**: Python 3.13, Flask 3.1, Flask-SQLAlchemy 3.1, Flask-Migrate 4.1, Flask-Login 0.6, Flask-Limiter 3.8
-- **Database**: PostgreSQL (Neon Cloud DB) / SQLite fallback
+- **Backend**: Python 3.13, Flask 3.1, Flask-SQLAlchemy 3.1, Flask-Migrate 4.1, Flask-Login 0.6, Flask-Limiter 3.8, Flask-WTF
+- **Database**: PostgreSQL (Neon Cloud DB) or SQLite, selected through `DATABASE_URL`
 - **Data Engineering**: Pandas, NumPy, OpenPyXL
 - **AI / LLM Integration**: Google GenAI Python SDK (`google-genai`), Gemini 2.5 Flash Model
 - **Frontend**: HTML5, Bootstrap 5.3, Chart.js 4.4, Custom CSS3
@@ -80,33 +92,21 @@ USER ➔ LOGIN / AUTH ➔ UPLOAD DATASET ➔ DATA PROFILING ➔ DQM ENGINE ➔ Q
 ```text
 AI-Business-Intelligence-Assistant/
 ├── app/
-│   ├── models/
-│   │   ├── user.py              # User authentication model
-│   │   ├── dataset.py           # Dataset metadata model
-│   │   └── quality_audit.py     # Quality audit snapshot model
-│   ├── routes/
-│   │   ├── __init__.py          # Main landing & dashboard routes
-│   │   ├── auth.py              # Auth routes (Login, Register, Logout)
-│   │   ├── data.py              # Dataset upload, preview, DQM routes
-│   │   ├── analytics.py         # BI Analytics dashboard routes
-│   │   └── ai.py                # AI Assistant chatbot routes
-│   ├── services/
-│   │   ├── data_loader.py       # Dataset ingestion & validation
-│   │   ├── data_profiler.py     # In-depth dataset profiling engine
-│   │   ├── data_quality.py      # DQM 4-dimension scoring engine
-│   │   ├── analytics.py         # Financial BI aggregation & charts
-│   │   ├── ai_service.py        # Gemini AI context & Q&A service
-│   │   └── monitoring.py        # Quality tracking & degradation alerts
-│   ├── templates/               # Bootstrap 5 Jinja2 HTML templates
-│   └── static/                  # Static assets
-├── migrations/                  # Alembic database migration scripts
-├── tests/                       # Automated test suites (Phases 1-6)
-├── config.py                    # Environment configuration loader
-├── Procfile                     # Production Gunicorn startup configuration
-├── gunicorn.conf.py             # Gunicorn worker & socket settings
-├── app.py                       # Main application entry point
+│   ├── models/                  # Users, datasets, budgets, audits, activity
+│   ├── routes/                  # Auth, admin, data, analytics, AI, reports
+│   ├── services/                # Data, quality, metrics, AI, and auth logic
+│   ├── templates/               # Jinja2 pages
+│   └── static/                  # CSS, JavaScript, and images
+├── docs/PROJECT_OVERVIEW.md     # Full architecture and operations guide
+├── migrations/                  # Alembic database migration history
+├── tests/                       # Unit and integration test suites
+├── uploads/                     # Runtime user dataset files
+├── instance/                    # Local instance data, including SQLite
+├── config.py                    # Environment-backed configuration
+├── app.py                       # Application entry point
 ├── requirements.txt             # Python dependencies
-└── README.md                    # System documentation
+├── Procfile                     # Production web-process command
+└── gunicorn.conf.py             # Gunicorn server settings
 ```
 
 ---
@@ -136,7 +136,33 @@ Create a `.env` file in the root directory:
 SECRET_KEY=your-production-secret-key-here
 DATABASE_URL=postgresql+psycopg://user:password@host/dbname?sslmode=require
 GEMINI_API_KEY=your-gemini-api-key-here
+ADMIN_USERNAME=@admin
+ADMIN_EMAIL=adminaibia@gmail.com
+ADMIN_PASSWORD=A12345678
+SESSION_COOKIE_SECURE=false
 ```
+
+The first request after database migrations creates the initial administrator if no administrator account exists. Local development defaults are `@admin` / `A12345678`; the password is hashed and is not reset when the app restarts. Administrators can update their business handle and email in profile settings. Never use the development password in production. Public registration always assigns the `user` role and rejects the reserved administrator username.
+
+### Administrator and production configuration
+
+The administrator signs in at `/admin/login` with the administrator username or email and password; no authenticator code is required. Login attempts are rate-limited, and five failed attempts trigger a 15-minute account lock.
+
+For Render, configure a unique `ADMIN_PASSWORD` of at least 12 characters, `SECRET_KEY`, and a reachable `ADMIN_EMAIL` in the service environment before deploying; retain the existing Neon `DATABASE_URL` and set `SESSION_COOKIE_SECURE=true`. The application refuses to start in production mode when the development admin password, a missing secret key, or insecure session cookies are detected. Do not change the existing `Procfile` or database URL.
+
+SQLAlchemy validates pooled PostgreSQL connections before reuse and recycles them every five minutes to reduce failures from stale Neon connections.
+
+Apply migrations before the first application request after deployment:
+
+```bash
+python -m flask --app app db upgrade
+```
+
+The role migration adds usernames, roles, active-state flags, and an activity-log table. The temporary-password migrations add a `must_change_password` flag and nullable expiry/first-use timestamps; existing accounts default to no forced password change. The business-reporting migration adds monthly budgets and failed-login lockout fields. Its legacy MFA columns remain in the database migration history but are no longer used by the application. Existing accounts and password hashes are retained. The default administrator is provisioned on the first request after the migration, and existing administrator credentials are never overwritten.
+
+Admins can issue a temporary password from the dashboard by entering only the client's registered email; the app looks up an existing active client account. After verifying the request, the administrator can issue a securely generated password, displayed once for manual delivery to that registered email. It is stored only as a hash, expires after 24 hours, allows one successful login, and requires a password change before the client can continue.
+
+The login page's **Forgot Password?** link opens a prefilled email draft to the administrator. The client reviews the business name, email, and username details and sends the request from their own email application. Password recovery does not email an existing password or use an OTP/passcode flow.
 
 ### 5. Apply Database Migrations
 ```bash
@@ -158,6 +184,14 @@ To run the complete automated test suite (Phases 1 through 6):
 ```bash
 python -m unittest tests/test_phase1.py tests/test_phase2.py tests/test_phase3.py tests/test_phase4.py tests/test_phase5.py tests/test_phase6.py
 ```
+
+Include role/authentication and business-report coverage with:
+
+```bash
+python -m unittest tests.test_role_auth tests.test_business_reports
+```
+
+For a clean local test database, set `DATABASE_URL` to a temporary SQLite database, run `python -m flask --app app db upgrade`, then run the test commands. Avoid running tests against a production Neon URL.
 
 ---
 

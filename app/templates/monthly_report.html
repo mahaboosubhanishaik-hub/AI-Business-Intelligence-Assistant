@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Monthly Management Report - AI BI Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    @media print {
+    .app-sidebar, .mobile-header, footer, .no-print, .alert { display: none !important; }
+        body, main { background: #fff !important; }
+        .container { max-width: 100% !important; }
+        .card { box-shadow: none !important; border: 1px solid #dee2e6 !important; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <div class="text-uppercase small fw-bold text-primary">Management report</div>
+            <h1 class="h2 fw-bold mb-1">{{ report_title }}</h1>
+            <p class="text-muted mb-0">Prepared for {{ current_user.name }} · {{ current_user.username }}</p>
+        </div>
+        <div class="d-flex gap-2 no-print">
+            <form method="GET" action="{{ url_for('reports.monthly_report') }}" class="d-flex gap-2">
+                <label class="visually-hidden" for="report-month">Report month</label>
+                <input class="form-control" id="report-month" type="month" name="month" value="{{ report_month }}">
+                <button class="btn btn-outline-primary text-nowrap" type="submit">View month</button>
+            </form>
+            <button class="btn btn-primary text-nowrap" type="button" onclick="window.print()">Print / Save PDF</button>
+        </div>
+    </div>
+
+    <p class="small text-muted">Generated {{ generated_at.strftime("%Y-%m-%d %H:%M UTC") }}. Budget actuals are calculated from the selected uploaded datasets.</p>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm h-100"><div class="card-body">
+                <div class="small text-muted">Dataset uploads</div>
+                <div class="display-6 fw-bold">{{ dataset_count }}</div>
+            </div></div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm h-100"><div class="card-body">
+                <div class="small text-muted">Analytics and AI activity</div>
+                <div class="display-6 fw-bold">{{ analysis_count }}</div>
+            </div></div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm h-100"><div class="card-body">
+                <div class="small text-muted">Average data quality</div>
+                <div class="display-6 fw-bold">{{ "%.1f%%"|format(average_quality) if average_quality is not none else "—" }}</div>
+            </div></div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 pt-4 px-4">
+            <h2 class="h5 fw-bold mb-1">Budget vs Actual</h2>
+            <p class="small text-muted mb-0">Variance is shown as actual minus budget; positive variance is not necessarily favorable for every metric.</p>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr><th class="ps-4">Dataset / metric</th><th>Group</th><th>Budget</th><th>Actual</th><th>Variance</th><th>Records</th></tr>
+                </thead>
+                <tbody>
+                    {% for row in budget_rows %}
+                    <tr>
+                        <td class="ps-4">{{ row.budget.dataset.name }} · {{ row.budget.value_column }}</td>
+                        <td>{{ row.budget.group_value if row.budget.group_column else "All rows" }}</td>
+                        <td>{{ "{:,.2f}".format(row.budget.budget_amount) }}</td>
+                        <td>{{ "{:,.2f}".format(row.actual) if row.actual is not none else "No matching data" }}</td>
+                        <td>{{ "{:,.2f}".format(row.variance) if row.variance is not none else "—" }}</td>
+                        <td>{{ row.records }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td class="text-center text-muted py-5" colspan="6">No budgets have been entered for this month. Add budgets to include performance comparisons.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-4 no-print">
+        <a class="btn btn-outline-secondary" href="{{ url_for('reports.budgets', month=report_month) }}">Manage budgets</a>
+    </div>
+</div>
+{% endblock %}

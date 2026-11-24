@@ -100,13 +100,13 @@
                         AI BI Assistant: {{ dataset.name }}
                     </h1>
                     <p class="text-muted mb-0">
-                        Interactive natural language analytics, executive summaries, and data quality explanations.
+                        Ask questions about your data, review a business summary, and understand data quality.
                     </p>
                 </div>
             </div>
             <div>
                 <a href="{{ url_for('analytics.dashboard', dataset_id=dataset.id) }}" class="btn btn-success me-2">
-                    📈 BI Analytics
+                    📈 Business Analytics
                 </a>
                 <a href="{{ url_for('data.quality_analysis', dataset_id=dataset.id) }}" class="btn btn-warning me-2 text-dark fw-medium">
                     🛡️ Data Quality
@@ -127,7 +127,7 @@
         <div class="col-md-4">
             <div class="card layer-card h-100 p-3">
                 <div class="card-body">
-                    <small class="text-muted text-uppercase fw-bold d-block mb-1">Layer 1: Data Quality</small>
+                    <small class="text-muted text-uppercase fw-bold d-block mb-1">Data Quality</small>
                     <div class="d-flex align-items-center gap-2 mb-2">
                         <span class="fs-3 fw-bold text-dark">{{ quality_report.score }}%</span>
                         <span class="badge {{ quality_report.status_info.badge_class }} px-3 py-1">
@@ -145,7 +145,7 @@
         <div class="col-md-4">
             <div class="card layer-card h-100 p-3">
                 <div class="card-body">
-                    <small class="text-muted text-uppercase fw-bold d-block mb-1">Layer 2: Business Performance</small>
+                    <small class="text-muted text-uppercase fw-bold d-block mb-1">Business Performance</small>
                     <div class="d-flex align-items-center gap-2 mb-2">
                         <span class="fs-4 fw-bold text-primary">
                             {% if analytics.kpis.get("total_revenue") %}
@@ -167,13 +167,13 @@
         <div class="col-md-4">
             <div class="card layer-card h-100 p-3 bg-primary-subtle border border-primary-subtle">
                 <div class="card-body">
-                    <small class="text-primary text-uppercase fw-bold d-block mb-1">Layer 3: AI Interpretation</small>
+                    <small class="text-primary text-uppercase fw-bold d-block mb-1">AI Insights</small>
                     <div class="fw-bold text-dark fs-5 mb-1 d-flex align-items-center gap-2">
-                        <span>Active Assistant</span>
+                        <span>Ready to Help</span>
                         <img src="{{ url_for('static', filename='images/AIBIlogo.png') }}" alt="Logo" style="height: 22px; width: auto;">
                     </div>
                     <small class="text-muted d-block">
-                        Ground Truth Model • Zero Hallucinations • Context Informed
+                        Uses your dataset • Context-aware
                     </small>
                 </div>
             </div>
@@ -186,12 +186,12 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4 class="fw-bold mb-0 d-flex align-items-center gap-2">
                     <img src="{{ url_for('static', filename='images/AIBIlogo.png') }}" alt="Logo" style="height: 28px; width: auto;">
-                    <span>AI Executive Business Summary</span>
+                    <span>Business Summary</span>
                 </h4>
                 {% if ai_summary.is_ai_generated %}
                     <span class="badge bg-primary px-3 py-1">Gemini AI Generated</span>
                 {% else %}
-                    <span class="badge bg-secondary px-3 py-1">Structured Fallback Mode</span>
+                    <span class="badge bg-secondary px-3 py-1">Standard Summary</span>
                 {% endif %}
             </div>
 
@@ -199,7 +199,7 @@
                 {{ ai_summary.summary }}
             </p>
 
-            <h5 class="fw-bold text-dark mb-3">🎯 Actionable Executive Recommendations</h5>
+            <h5 class="fw-bold text-dark mb-3">🎯 Recommended Actions</h5>
             <ul class="list-group list-group-flush mb-0">
                 {% for rec in ai_summary.recommendations %}
                 <li class="list-group-item bg-transparent ps-0 py-2 border-0">
@@ -216,30 +216,30 @@
 
             <div class="d-flex align-items-center gap-2 mb-3">
                 <img src="{{ url_for('static', filename='images/AIBIlogo.png') }}" alt="Logo" style="height: 30px; width: auto;">
-                <h4 class="fw-bold mb-0">Ask Questions About This Dataset</h4>
+                <h4 class="fw-bold mb-0">Ask Questions About Your Data</h4>
             </div>
 
             <!-- SUGGESTED QUESTION CHIPS -->
             <div class="mb-4">
-                <small class="text-muted d-block mb-2 fw-semibold">Suggested Questions:</small>
+                <small class="text-muted d-block mb-2 fw-semibold">Try one of these questions:</small>
                 <div class="d-flex flex-wrap gap-2">
-                    <button class="question-chip" onclick="askSuggested('What is my total revenue and profit?')">
-                        What is my total revenue and profit?
+                    <button class="question-chip" onclick="askSuggested('What are the total revenue and profit?')">
+                        What are the total revenue and profit?
                     </button>
                     <button class="question-chip" onclick="askSuggested('Which product performed best?')">
                         Which product performed best?
                     </button>
-                    <button class="question-chip" onclick="askSuggested('Which region generated the highest revenue?')">
-                        Which region generated highest revenue?
+                    <button class="question-chip" onclick="askSuggested('Which region had the highest revenue?')">
+                        Which region had the highest revenue?
                     </button>
-                    <button class="question-chip" onclick="askSuggested('Why is my data quality score what it is?')">
-                        Why is my quality score low/high?
+                    <button class="question-chip" onclick="askSuggested('What does the data quality score mean?')">
+                        What does the data quality score mean?
                     </button>
                     <button class="question-chip" onclick="askSuggested('Summarize the business performance.')">
                         Summarize business performance.
                     </button>
-                    <button class="question-chip" onclick="askSuggested('What recommendations do you have for this dataset?')">
-                        What should I investigate?
+                    <button class="question-chip" onclick="askSuggested('What should I review in this dataset?')">
+                        What should I review in this dataset?
                     </button>
                 </div>
             </div>
@@ -252,7 +252,7 @@
                         <span>AI Assistant</span>
                     </small>
                     <div class="message-bubble">
-                        Hello! I am your AI Business Intelligence Assistant for <strong>{{ dataset.name }}</strong>. Ask me anything about your revenue, top products, regions, profit margins, or data quality issues!
+                        Hello! I can help you review <strong>{{ dataset.name }}</strong>. Ask about revenue, products, regions, profit, or data quality.
                     </div>
                 </div>
             </div>
@@ -263,7 +263,7 @@
                     type="text"
                     id="questionInput"
                     class="form-control form-control-lg rounded-3"
-                    placeholder="Ask a question about your business dataset..."
+                    placeholder="Ask a question about your business data..."
                     required
                 >
                 <button type="submit" id="sendBtn" class="btn btn-primary btn-lg px-4 rounded-3 shadow-sm">
@@ -280,7 +280,7 @@
             ← Back to Datasets
         </a>
         <a href="{{ url_for('analytics.dashboard', dataset_id=dataset.id) }}" class="btn btn-success me-2">
-            📈 View BI Analytics
+            📈 View Business Analytics
         </a>
         <a href="{{ url_for('data.quality_analysis', dataset_id=dataset.id) }}" class="btn btn-warning me-2 text-dark fw-medium">
             🛡️ View Data Quality
@@ -349,7 +349,8 @@
         fetch(`/ai/assistant/${datasetId}`, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "X-CSRFToken": document.querySelector('meta[name="csrf-token"]').content
             },
             body: JSON.stringify({ question: questionText })
         })

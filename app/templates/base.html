@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{% block title %}AI Business Intelligence Assistant{% endblock %}</title>
 
     <!-- Favicon -->
@@ -24,109 +25,142 @@
     {% block extra_css %}{% endblock %}
 </head>
 
-<body class="bg-light d-flex flex-column min-vh-100">
-
-<!-- Navigation Bar -->
-<nav class="navbar navbar-expand-lg bg-dark navbar-dark">
-    <div class="container">
-
-        <!-- Brand with Project Logo -->
-        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="{{ url_for('main.home') }}">
-            <img
-                src="{{ url_for('static', filename='images/AIBIlogo.png') }}"
-                alt="AI BI Logo"
-                style="height: 34px; width: auto; object-fit: contain;"
-            >
-            <span>AI BI Assistant</span>
-        </a>
-
-        <!-- Mobile Menu Toggle -->
-        <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarMenu"
-            aria-controls="navbarMenu"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-        >
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <!-- Navigation Links -->
-        <div class="collapse navbar-collapse" id="navbarMenu">
-            <ul class="navbar-nav ms-auto align-items-lg-center">
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('main.home') }}">
-                        Home
-                    </a>
-                </li>
-
-                {% if current_user.is_authenticated %}
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.dashboard') }}">
-                            Dashboard
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('data.datasets') }}">
-                            Datasets
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('data.upload') }}">
-                            Upload Dataset
-                        </a>
-                    </li>
-
-                    <li class="nav-item ms-lg-2 my-1 my-lg-0">
-                        <span class="nav-link text-light fw-medium">
-                            Hi, {{ current_user.name }}
-                        </span>
-                    </li>
-
-                    <li class="nav-item ms-lg-2">
-                        <a
-                            class="btn btn-outline-light btn-sm"
-                            href="{{ url_for('auth.logout') }}"
-                        >
-                            Logout
-                        </a>
-                    </li>
-
-                {% else %}
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('auth.login') }}">
-                            Login
-                        </a>
-                    </li>
-
-                    <li class="nav-item ms-lg-2">
-                        <a
-                            class="btn btn-primary btn-sm"
-                            href="{{ url_for('auth.register') }}"
-                        >
-                            Register
-                        </a>
-                    </li>
-
-                {% endif %}
-
-            </ul>
+<body class="app-body">
+<div class="app-layout">
+    <aside
+        class="app-sidebar offcanvas-lg offcanvas-start"
+        id="appSidebar"
+        tabindex="-1"
+        aria-label="Main navigation"
+    >
+        <div class="offcanvas-header sidebar-mobile-header">
+            <a class="sidebar-brand" href="{{ url_for('main.home') }}">
+                <img
+                    src="{{ url_for('static', filename='images/AIBIlogo.png') }}"
+                    alt=""
+                >
+                <span>AI BI Assistant</span>
+            </a>
+            <button
+                type="button"
+                class="btn-close btn-close-white"
+                data-bs-dismiss="offcanvas"
+                aria-label="Close navigation"
+            ></button>
         </div>
 
-    </div>
-</nav>
+        <div class="offcanvas-body sidebar-body">
+            <a class="sidebar-brand sidebar-brand-desktop" href="{{ url_for('main.home') }}">
+                <img
+                    src="{{ url_for('static', filename='images/AIBIlogo.png') }}"
+                    alt=""
+                >
+                <span>AI BI Assistant</span>
+            </a>
 
-<!-- Main Container & Flashed Messages -->
-<main class="flex-grow-1">
+            <div class="sidebar-section-label">Workspace</div>
+            <nav class="sidebar-navigation">
+                <a
+                    class="sidebar-link{% if request.endpoint == 'main.home' %} active{% endif %}"
+                    href="{{ url_for('main.home') }}"
+                >Home</a>
 
-    <div class="container mt-4">
+                {% if current_user.is_authenticated %}
+                    {% if current_user.is_admin %}
+                        <a
+                            class="sidebar-link{% if request.endpoint == 'admin.dashboard' %} active{% endif %}"
+                            href="{{ url_for('admin.dashboard') }}"
+                        >Admin Dashboard</a>
+                    {% else %}
+                        <a
+                            class="sidebar-link{% if request.endpoint == 'main.dashboard' %} active{% endif %}"
+                            href="{{ url_for('main.dashboard') }}"
+                        >Dashboard</a>
+                        <a
+                            class="sidebar-link{% if request.endpoint == 'data.datasets' %} active{% endif %}"
+                            href="{{ url_for('data.datasets') }}"
+                        >Datasets</a>
+                        <a
+                            class="sidebar-link{% if request.endpoint == 'data.upload' %} active{% endif %}"
+                            href="{{ url_for('data.upload') }}"
+                        >Upload Dataset</a>
+                        <a
+                            class="sidebar-link{% if request.endpoint == 'reports.budgets' %} active{% endif %}"
+                            href="{{ url_for('reports.budgets') }}"
+                        >Budget vs Actual</a>
+                        <a
+                            class="sidebar-link{% if request.endpoint == 'reports.compare' %} active{% endif %}"
+                            href="{{ url_for('reports.compare') }}"
+                        >Compare</a>
+                        <a
+                            class="sidebar-link{% if request.endpoint == 'reports.monthly_report' %} active{% endif %}"
+                            href="{{ url_for('reports.monthly_report') }}"
+                        >Monthly Report</a>
+                        <a
+                            class="sidebar-link{% if request.endpoint == 'main.analysis_history' %} active{% endif %}"
+                            href="{{ url_for('main.analysis_history') }}"
+                        >Analysis History</a>
+                    {% endif %}
+                    <a
+                        class="sidebar-link{% if request.endpoint == 'auth.profile' %} active{% endif %}"
+                        href="{{ url_for('auth.profile') }}"
+                    >Account</a>
+                {% else %}
+                    <a
+                        class="sidebar-link{% if request.endpoint == 'auth.login' %} active{% endif %}"
+                        href="{{ url_for('auth.login') }}"
+                    >Sign in</a>
+                    <a
+                        class="sidebar-link{% if request.endpoint == 'admin.login' %} active{% endif %}"
+                        href="{{ url_for('admin.login') }}"
+                    >Administrator sign in</a>
+                    <a
+                        class="sidebar-link{% if request.endpoint == 'auth.register' %} active{% endif %}"
+                        href="{{ url_for('auth.register') }}"
+                    >Create account</a>
+                {% endif %}
+            </nav>
+
+            {% if current_user.is_authenticated %}
+                <div class="sidebar-account">
+                    <a class="sidebar-user" href="{{ url_for('auth.profile') }}">
+                        <span class="sidebar-avatar">{{ current_user.name[:1]|upper }}</span>
+                        <span class="sidebar-user-details">
+                            <span class="sidebar-user-name">{{ current_user.name }}</span>
+                            <span class="sidebar-user-role">
+                                {{ 'Administrator' if current_user.is_admin else 'Business account' }}
+                            </span>
+                        </span>
+                    </a>
+                    <form method="POST" action="{{ url_for('auth.logout') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-outline-light sidebar-logout" type="submit">
+                            Log out
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </aside>
+
+    <div class="app-main">
+        <header class="mobile-header d-lg-none">
+            <button
+                class="btn btn-outline-secondary mobile-menu-button"
+                type="button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#appSidebar"
+                aria-controls="appSidebar"
+                aria-label="Open navigation"
+            >Menu</button>
+            <span class="mobile-brand">AI BI Assistant</span>
+            {% if current_user.is_authenticated %}
+                <span class="mobile-user-name">{{ current_user.name }}</span>
+            {% endif %}
+        </header>
+
+        <main class="app-main-content flex-grow-1">
+            <div class="container-fluid px-3 px-lg-4 mt-3">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -149,24 +183,24 @@
 
     {% block content %}{% endblock %}
 
-</main>
+        </main>
 
-<!-- Footer -->
-<footer class="bg-white border-top text-center py-4 text-muted mt-auto">
-    <div class="container">
-        <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
-            <img
-                src="{{ url_for('static', filename='images/AIBIlogo.png') }}"
-                alt="AI BI Logo"
-                style="height: 24px; width: auto; object-fit: contain;"
-            >
-            <span class="fw-bold text-dark">AI Business Intelligence Assistant</span>
-        </div>
-        <small class="text-muted">
-            &copy; 2026 AI Business Intelligence Assistant. All rights reserved.
-        </small>
+        <footer class="app-footer text-center py-4 text-muted mt-auto">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
+                    <img
+                        src="{{ url_for('static', filename='images/AIBIlogo.png') }}"
+                        alt=""
+                    >
+                    <span class="fw-bold text-dark">AI Business Intelligence Assistant</span>
+                </div>
+                <small class="text-muted">
+                    &copy; 2026 AI Business Intelligence Assistant. All rights reserved.
+                </small>
+            </div>
+        </footer>
     </div>
-</footer>
+</div>
 
 <!-- Bootstrap 5 JS Bundle -->
 <script

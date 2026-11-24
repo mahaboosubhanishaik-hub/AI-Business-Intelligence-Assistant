@@ -16,6 +16,7 @@ from flask_login import (
 from werkzeug.utils import secure_filename
 
 from app import db
+from app import limiter
 from app.models.dataset import Dataset
 from app.services.data_loader import (
     allowed_file,
@@ -30,6 +31,7 @@ from app.services.data_quality import (
 from app.services.monitoring import (
     audit_and_monitor_quality
 )
+from app.services.activity_log import record_activity
 
 
 data = Blueprint(
@@ -68,6 +70,7 @@ def datasets():
 
 @data.route("/upload", methods=["GET", "POST"])
 @login_required
+@limiter.limit("100 per hour", methods=["POST"])
 def upload():
     if request.method == "GET":
         return render_template("upload.html")
@@ -75,11 +78,11 @@ def upload():
     file = request.files.get("file")
 
     if not file or file.filename == "":
-        flash("Please select a file to upload.", "danger")
+        flash("Select a file to continue.", "danger")
         return redirect(url_for("data.upload"))
 
     if not allowed_file(file.filename):
-        flash("Only CSV (.csv) and Excel (.xlsx, .xls) files are allowed.", "danger")
+        flash("Choose a CSV or Excel file (.xlsx or .xls).", "danger")
         return redirect(url_for("data.upload"))
 
     original_filename = secure_filename(file.filename)
@@ -110,9 +113,16 @@ def upload():
         )
 
         db.session.add(dataset)
+        db.session.flush()
+        record_activity(
+            current_user.id,
+            "dataset_uploaded",
+            "Uploaded a dataset",
+            dataset_id=dataset.id
+        )
         db.session.commit()
 
-        flash("Dataset uploaded and profiled successfully!", "success")
+        flash("Business data uploaded successfully. Your file is ready to review.", "success")
 
         # Preview first 20 rows
         preview = (
@@ -139,7 +149,7 @@ def upload():
         db.session.rollback()
         if os.path.exists(filepath):
             os.remove(filepath)
-        flash("Unable to process the uploaded dataset file.", "danger")
+        flash("We could not process this file. Check that it is a valid CSV or Excel file and try again.", "danger")
         return redirect(url_for("data.upload"))
 
 
@@ -155,7 +165,7 @@ def view_dataset(dataset_id):
     filepath = os.path.join(UPLOAD_FOLDER, dataset.filename)
 
     if not os.path.exists(filepath):
-        flash("Dataset file could not be found on server.", "danger")
+        flash("This data file is unavailable. Upload it again to continue.", "danger")
         return redirect(url_for("data.datasets"))
 
     try:
@@ -175,7 +185,7 @@ def view_dataset(dataset_id):
         )
 
     except Exception:
-        flash("Unable to read this dataset.", "danger")
+        flash("We could not read this file. Check that it is a valid CSV or Excel file.", "danger")
         return redirect(url_for("data.datasets"))
 
 
@@ -191,7 +201,7 @@ def preview_dataset(dataset_id):
     filepath = os.path.join(UPLOAD_FOLDER, dataset.filename)
 
     if not os.path.exists(filepath):
-        flash("Dataset file could not be found on server.", "danger")
+        flash("This data file is unavailable. Upload it again to continue.", "danger")
         return redirect(url_for("data.datasets"))
 
     try:
@@ -211,7 +221,7 @@ def preview_dataset(dataset_id):
         )
 
     except Exception:
-        flash("Unable to generate preview for this dataset.", "danger")
+        flash("We could not create a preview. Please try again.", "danger")
         return redirect(url_for("data.datasets"))
 
 
@@ -227,7 +237,7 @@ def quality_analysis(dataset_id):
     filepath = os.path.join(UPLOAD_FOLDER, dataset.filename)
 
     if not os.path.exists(filepath):
-        flash("Dataset file could not be found on server.", "danger")
+        flash("This data file is unavailable. Upload it again to continue.", "danger")
         return redirect(url_for("data.datasets"))
 
     try:
@@ -236,6 +246,13 @@ def quality_analysis(dataset_id):
 
         # Audit and monitor quality history & degradation
         monitoring_data = audit_and_monitor_quality(dataset.id, current_user.id, report)
+        record_activity(
+            current_user.id,
+            "quality_analysis",
+            "Ran a data quality analysis",
+            dataset_id=dataset.id
+        )
+        db.session.commit()
 
         return render_template(
             "data_quality.html",
@@ -245,7 +262,7 @@ def quality_analysis(dataset_id):
         )
 
     except Exception:
-        flash("Unable to evaluate data quality for this dataset.", "danger")
+        flash("We could not complete the data quality check. Please try again.", "danger")
         return redirect(url_for("data.datasets"))
 
 
@@ -264,13 +281,19 @@ def delete_dataset(dataset_id):
         if os.path.exists(filepath):
             os.remove(filepath)
 
+        record_activity(
+            current_user.id,
+            "dataset_deleted",
+            "Deleted a dataset",
+            dataset_id=dataset.id
+        )
         db.session.delete(dataset)
         db.session.commit()
 
-        flash(f"Dataset '{dataset.name}' was deleted successfully.", "success")
+        flash(f"Dataset '{dataset.name}' was deleted.", "success")
 
     except Exception:
         db.session.rollback()
-        flash("Unable to delete dataset.", "danger")
+        flash("We could not delete this dataset. Please try again.", "danger")
 
     return redirect(url_for("data.datasets"))
